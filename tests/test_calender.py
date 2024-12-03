@@ -6,7 +6,7 @@ from core.calendar import calender
 
 def test():
     cal = calender()
-
+    # day of week / year / month / day of month
     days = [[2, 2024, 12, 3],
             [3, 2024, 12, 4]]
     for day in days:

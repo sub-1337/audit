@@ -8,7 +8,10 @@ def test():
     cal = calender()
     # day of week / year / month / day of month
     days = [[2, 2024, 12, 3],
-            [3, 2024, 12, 4]]
+            [3, 2024, 12, 4],
+            [7, 2024, 12, 29],
+            [3, 2025, 1, 1],
+            [6, 2027, 5, 1]]
     for day in days:
         day_in_fact = cal.weekday(year = day[1], month = day[2], day = day[3])
         if day[0] == day_in_fact:

@@ -7,6 +7,9 @@ class calender():
             month += 10
         else:
             month -= 2
-        return (day + 31 * month // 12 + year + year // 4 - year // 100 + year // 400) % 7
+        res = (day + 31 * month // 12 + year + year // 4 - year // 100 + year // 400) % 7
+        if res == 0: # russian calender
+            res = 7
+        return res
     def __init__(self):
         pass

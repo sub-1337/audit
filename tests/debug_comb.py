@@ -31,20 +31,64 @@ class MainWindow(QWidget):
         def getMergedCellVal(sheet, cell):
             rng = [s for s in sheet.merged_cells.ranges if cell.coordinate in s]
             return sheet.cell(rng[0].min_row, rng[0].min_col).value if len(rng)!=0 else cell.value
+        #def isDayOfWeek(str):
+        #    if str == "п о н е д е л ь н и к"
 
-        # Добавление данных в ячейки
+        processed = [ [0]*50 for i in range(100)]
+
+
+        # Избавится от объеденённых ячеек
+        def unMergeCells(sheet_obj, processed):
+            for i_row in range(1,row):
+                for i_col in range(1, col):              
+                    cell = sheet_obj.cell(row=i_row, column=i_col)
+                    if isinstance(cell, openpyxl.cell.cell.MergedCell):
+                        value_merged = getMergedCellVal(sheet_obj, cell)
+                        processed[i_row][i_col] = value_merged
+                        #print("cell ",i_row, " ", i_col, " ", )                   
+                    else:
+                        processed[i_row][i_col] = sheet_obj.cell(row =  i_row, column = i_col).value
+                    #    print("This cell is not merged.")
+        
+        unMergeCells(sheet_obj, processed)
+        
+        def groupUpBorders(sheet_obj, processed):
+            def check(i_row, i_col, sheet_obj, processed):
+                def checkAny(cell):
+                    if cell.border.top.style != None or \
+                       cell.border.bottom.style != None or \
+                       cell.border.left.style != None or \
+                       cell.border.right.style != None:
+                        return True
+                    else:
+                        return False
+                def checkAll(cell):
+                    if cell.border.top.style != None and \
+                       cell.border.bottom.style != None and \
+                       cell.border.left.style != None and \
+                       cell.border.right.style != None:
+                        return True
+                    else:
+                        return False
+                cell = sheet_obj.cell(row=i_row, column=i_col)
+                if checkAny(cell):
+                    if checkAll(cell) == False:
+                        if cell.value != None:
+                            if i_row < 100 and  i_col < 30:
+                                if (i_col - 1) > 1:
+                                    check(i_row, i_col, sheet_obj, processed)
+            for i_row in range(1,row):
+                for i_col in range(1, col):
+                    check(i_row, i_col, sheet_obj, processed)
+                    
+                    
+
+        groupUpBorders(sheet_obj, processed)
+
+
         for i_row in range(1,row):
             for i_col in range(1, col):
-                value = sheet_obj.cell(row =  i_row, column = i_col).value
-                item = QTableWidgetItem(value)
-                
-                cell = sheet_obj.cell(row=i_row, column=i_col)
-                if isinstance(cell, openpyxl.cell.cell.MergedCell):
-                    value_merged = getMergedCellVal(sheet_obj, cell)
-                    print("cell ",i_row, " ", i_col, " ", )                   
-                #else:
-                #    print("This cell is not merged.")
-
+                item = QTableWidgetItem(processed[i_row][i_col])
                 self.table.setItem(i_row - 1, i_col - 1, item)
 
         # Компоновка

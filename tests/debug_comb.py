@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 import openpyxl
-
+import re
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -51,9 +51,20 @@ class MainWindow(QWidget):
                     #    print("This cell is not merged.")
         
         unMergeCells(sheet_obj, processed)
-        
+        def detectClass(string):
+            if "пара" in string:
+                return True
+            else:
+                return False
+        def detectTime(string):
+            res = re.search("[+-]?([0-9]*[.])?[0-9]+?\/[+-]?([0-9]*[.])?[0-9]+", string)
+            if res:
+                return True
+            else:
+                return False
+
         def groupUpBorders(sheet_obj, processed):
-            def check(i_row, i_col, sheet_obj, processed):
+            def check(i_row_parent, i_col_parent, i_row, i_col, sheet_obj, processed):
                 def checkAny(cell):
                     if cell.border.top.style != None or \
                        cell.border.bottom.style != None or \
@@ -70,18 +81,27 @@ class MainWindow(QWidget):
                         return True
                     else:
                         return False
+                def checkTop(cell):
+                    if cell.border.top.style == None:
+                        return True
+                    else:
+                        return False
                 cell = sheet_obj.cell(row=i_row, column=i_col)
                 if checkAny(cell):
                     if checkAll(cell) == False:
                         if cell.value != None:
-                            if i_row < 100 and  i_col < 30:
-                                if (i_col - 1) > 1:
-                                    check(i_row, i_col, sheet_obj, processed)
+                            if not detectClass(cell.value):
+                                if checkTop(cell):
+                                    if detectTime(cell.value) == False:
+                                        if i_row < 100 and  i_col < 30:
+                                            if (i_col - 1) > 1:
+                                                check(i_row_parent, i_col_parent, i_row, i_col - 1, sheet_obj, processed)
+                            else:
+                                pass
+                                    
             for i_row in range(1,row):
                 for i_col in range(1, col):
-                    check(i_row, i_col, sheet_obj, processed)
-                    
-                    
+                    check(i_row, i_col, i_row, i_col, sheet_obj, processed)
 
         groupUpBorders(sheet_obj, processed)
 

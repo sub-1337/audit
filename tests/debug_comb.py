@@ -112,16 +112,6 @@ class MainWindow(QWidget):
                                                     processed[i_row - 1][i_col] = origin_cell.value
                                                     is_going = True
                                                     check(i_row_parent, i_col_parent, i_row - 1, i_col, i_row, i_col, is_going, sheet_obj, processed)
-                                """
-                                else: # checkTop(cell)
-                                    if checkTop(cell_prev):
-                                        if checkBottom(cell):
-                                            if detectTime(cell.value) == False:
-                                                if detectPartOfGroup(cell.value) == False:
-                                                    processed[i_row][i_col] = origin_cell.value
-                                """
-                            else:
-                                pass
                         else: #cell.value != None:
                             if checkTop(cell):
                                 if is_going:

@@ -69,7 +69,7 @@ class MainWindow(QWidget):
                 return False
 
         def groupUpBorders(sheet_obj, processed):
-            def check(i_row_parent, i_col_parent, i_row, i_col, i_row_prev, i_col_prev, sheet_obj, processed):
+            def check(i_row_parent, i_col_parent, i_row, i_col, i_row_prev, i_col_prev, is_going, sheet_obj, processed):
                 def checkAny(cell):
                     if cell.border.top.style != None or \
                        cell.border.bottom.style != None or \
@@ -110,19 +110,31 @@ class MainWindow(QWidget):
                                             if i_row < 100 and  i_col < 30:
                                                 if (i_row - 1) > 1:
                                                     processed[i_row - 1][i_col] = origin_cell.value
-                                                    check(i_row_parent, i_col_parent, i_row - 1, i_col, i_row, i_col,sheet_obj, processed)
+                                                    is_going = True
+                                                    check(i_row_parent, i_col_parent, i_row - 1, i_col, i_row, i_col, is_going, sheet_obj, processed)
+                                """
                                 else: # checkTop(cell)
                                     if checkTop(cell_prev):
                                         if checkBottom(cell):
                                             if detectTime(cell.value) == False:
                                                 if detectPartOfGroup(cell.value) == False:
                                                     processed[i_row][i_col] = origin_cell.value
+                                """
                             else:
                                 pass
+                        else: #cell.value != None:
+                            if checkTop(cell):
+                                if is_going:
+                                    if i_row < 100 and  i_col < 30:
+                                        if (i_row - 1) > 1:
+                                            processed[i_row - 1][i_col] = origin_cell.value
+                                            check(i_row_parent, i_col_parent, i_row - 1, i_col, i_row, i_col, is_going, sheet_obj, processed)
+                            
+
                                     
             for i_row in range(1,row):
                 for i_col in range(1, col):
-                    check(i_row, i_col, i_row, i_col, i_row, i_col, sheet_obj, processed)
+                    check(i_row, i_col, i_row, i_col, i_row, i_col, False, sheet_obj, processed)
 
         groupUpBorders(sheet_obj, processed)
 

@@ -10,8 +10,8 @@ class MainWindow(QWidget):
         return sheet.cell(rng[0].min_row, rng[0].min_col).value if len(rng)!=0 else cell.value
     
     def unMergeCells(self, sheet_obj, processed):
-        for i_row in range(1,self.row):
-            for i_col in range(1, self.col):              
+        for i_row in range(1,self.rowMax):
+            for i_col in range(1, self.colMax):              
                 cell = sheet_obj.cell(row=i_row, column=i_col)
                 if isinstance(cell, openpyxl.cell.cell.MergedCell):
                     value_merged = self.getMergedCellVal(sheet_obj, cell)
@@ -86,7 +86,7 @@ class MainWindow(QWidget):
                                 if checkSide(cell, direction):
                                     if self.detectTime(cell.value) == False:
                                         if self.detectPartOfGroup(cell.value) == False:
-                                            if i_row < 100 and  i_col < 30:                                                
+                                            if i_row < self.rowMax and  i_col < self.colMax:                                                
                                                 if direction == self.DirectionOfGroupingUp.TOP:
                                                     if (i_row - 1) > 1:
                                                         processed[i_row - 1][i_col] = origin_cell.value
@@ -99,7 +99,7 @@ class MainWindow(QWidget):
                         else: #cell.value == None:
                             if checkSide(cell, direction):
                                 if is_going:
-                                    if i_row < 100 and  i_col < 30:                                                                                    
+                                    if i_row < self.rowMax and  i_col < self.colMax:                                                                                    
                                         if direction == self.DirectionOfGroupingUp.TOP:
                                             if (i_row - 1) > 1:
                                                 processed[i_row - 1][i_col] = origin_cell.value
@@ -107,8 +107,8 @@ class MainWindow(QWidget):
                                         if direction == self.DirectionOfGroupingUp.BOTTOM:                                            
                                             processed[i_row + 1][i_col] = origin_cell.value
                                             check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)                  
-            for i_row in range(1,self.row):
-                for i_col in range(1, self.col):
+            for i_row in range(1,self.rowMax):
+                for i_col in range(1, self.colMax):
                     check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)
  
         
@@ -116,8 +116,8 @@ class MainWindow(QWidget):
         super().__init__()
 
         path = "D:\\git\\audit\\data\\1kurs.xlsx"
-        self.row = 100
-        self.col = 25
+        self.rowMax = 100
+        self.colMax = 25
         # To open the workbook 
         # workbook object is created
         wb_obj = openpyxl.load_workbook(path)
@@ -131,8 +131,8 @@ class MainWindow(QWidget):
 
         # Создание таблицы
         self.table = QTableWidget()
-        self.table.setRowCount(self.row)  # Количество строк
-        self.table.setColumnCount(self.col)  # Количество столбцов
+        self.table.setRowCount(self.rowMax)  # Количество строк
+        self.table.setColumnCount(self.colMax)  # Количество столбцов
         #self.table.setHorizontalHeaderLabels(["Имя", "Возраст", "Город"])  # Заголовки столбцов
 
         
@@ -140,14 +140,14 @@ class MainWindow(QWidget):
 
 
         # Избавится от объеденённых ячеек
-        processed = [ [0]*50 for i in range(100)]
+        processed = [ [0]*self.colMax for i in range(self.rowMax)]
         self.unMergeCells(sheet_obj, processed)
         self.groupUpBorders(sheet_obj, processed, self.DirectionOfGroupingUp.TOP)
         self.groupUpBorders(sheet_obj, processed, self.DirectionOfGroupingUp.BOTTOM)
 
 
-        for i_row in range(1,self.row):
-            for i_col in range(1, self.col):
+        for i_row in range(1,self.rowMax):
+            for i_col in range(1, self.colMax):
                 item = QTableWidgetItem(processed[i_row][i_col])
                 self.table.setItem(i_row - 1, i_col - 1, item)
 

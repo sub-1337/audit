@@ -92,10 +92,11 @@ class MainWindow(QWidget):
                                                         processed[i_row - 1][i_col] = origin_cell.value
                                                         is_going = True
                                                         check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
-                                                if direction == self.DirectionOfGroupingUp.BOTTOM:                                                    
-                                                    processed[i_row + 1][i_col] = origin_cell.value
-                                                    is_going = True
-                                                    check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)
+                                                if direction == self.DirectionOfGroupingUp.BOTTOM:
+                                                    if (i_row + 1) < self.rowMax:                                        
+                                                        processed[i_row + 1][i_col] = origin_cell.value
+                                                        is_going = True
+                                                        check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)
                         else: #cell.value == None:
                             if checkSide(cell, direction):
                                 if is_going:
@@ -104,9 +105,10 @@ class MainWindow(QWidget):
                                             if (i_row - 1) > 1:
                                                 processed[i_row - 1][i_col] = origin_cell.value
                                                 check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
-                                        if direction == self.DirectionOfGroupingUp.BOTTOM:                                            
-                                            processed[i_row + 1][i_col] = origin_cell.value
-                                            check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)                  
+                                        if direction == self.DirectionOfGroupingUp.BOTTOM:
+                                            if (i_row + 1) < self.rowMax:                               
+                                                processed[i_row + 1][i_col] = origin_cell.value
+                                                check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)                  
             for i_row in range(1,self.rowMax):
                 for i_col in range(1, self.colMax):
                     check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)

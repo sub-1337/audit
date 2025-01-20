@@ -44,75 +44,75 @@ class MainWindow(QWidget):
         LEFT = 3
     
     def groupUpBorders(self, sheet_obj, processed, direction : DirectionOfGroupingUp):
-            def check(i_row_parent, i_col_parent, i_row, i_col, is_going, sheet_obj, processed, direction : self.DirectionOfGroupingUp):
-                def checkAny(cell):
-                    if cell.border.top.style != None or \
-                       cell.border.bottom.style != None or \
-                       cell.border.left.style != None or \
-                       cell.border.right.style != None:
+        def check(i_row_parent, i_col_parent, i_row, i_col, is_going, sheet_obj, processed, direction : self.DirectionOfGroupingUp):
+            def checkAny(cell):
+                if cell.border.top.style != None or \
+                    cell.border.bottom.style != None or \
+                    cell.border.left.style != None or \
+                    cell.border.right.style != None:
+                    return True
+                else:
+                    return False
+            def checkAll(cell):
+                if cell.border.top.style != None and \
+                    cell.border.bottom.style != None and \
+                    cell.border.left.style != None and \
+                    cell.border.right.style != None:
+                    return True
+                else:
+                    return False
+            def checkSide(cell, direction : self.DirectionOfGroupingUp):
+                def checkTop(cell):
+                    if cell.border.top.style == None:
                         return True
                     else:
                         return False
-                def checkAll(cell):
-                    if cell.border.top.style != None and \
-                       cell.border.bottom.style != None and \
-                       cell.border.left.style != None and \
-                       cell.border.right.style != None:
+                def checkBottom(cell):
+                    if cell.border.bottom.style == None:
                         return True
                     else:
                         return False
-                def checkSide(cell, direction : self.DirectionOfGroupingUp):
-                    def checkTop(cell):
-                        if cell.border.top.style == None:
-                            return True
-                        else:
-                            return False
-                    def checkBottom(cell):
-                        if cell.border.bottom.style == None:
-                            return True
-                        else:
-                            return False
-                    if direction == self.DirectionOfGroupingUp.TOP:
-                        return checkTop(cell)
-                    elif direction == self.DirectionOfGroupingUp.BOTTOM:
-                        return checkBottom(cell)
-                
-                cell = sheet_obj.cell(row=i_row, column=i_col)
-                origin_cell = sheet_obj.cell(row=i_row_parent, column=i_col_parent)
-                if checkAny(cell):
-                    if checkAll(cell) == False:
-                        if cell.value != None:
-                            if not self.detectClass(cell.value):
-                                if checkSide(cell, direction):
-                                    if self.detectTime(cell.value) == False:
-                                        if self.detectPartOfGroup(cell.value) == False:
-                                            if i_row < self.rowMax and  i_col < self.colMax:                                                
-                                                if direction == self.DirectionOfGroupingUp.TOP:
-                                                    if (i_row - 1) > 1:
-                                                        processed[i_row - 1][i_col] = origin_cell.value
-                                                        is_going = True
-                                                        check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
-                                                if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                                    if (i_row + 1) < self.rowMax:                                        
-                                                        processed[i_row + 1][i_col] = origin_cell.value
-                                                        is_going = True
-                                                        check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)
-                        else: #cell.value == None:
+                if direction == self.DirectionOfGroupingUp.TOP:
+                    return checkTop(cell)
+                elif direction == self.DirectionOfGroupingUp.BOTTOM:
+                    return checkBottom(cell)
+            
+            cell = sheet_obj.cell(row=i_row, column=i_col)
+            origin_cell = sheet_obj.cell(row=i_row_parent, column=i_col_parent)
+            if checkAny(cell):
+                if checkAll(cell) == False:
+                    if cell.value != None:
+                        if not self.detectClass(cell.value):
                             if checkSide(cell, direction):
-                                if is_going:
-                                    if i_row < self.rowMax and  i_col < self.colMax:                                                                                    
-                                        if direction == self.DirectionOfGroupingUp.TOP:
-                                            if (i_row - 1) > 1:
-                                                processed[i_row - 1][i_col] = origin_cell.value
-                                                check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
-                                        if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                            if (i_row + 1) < self.rowMax:                               
-                                                processed[i_row + 1][i_col] = origin_cell.value
-                                                check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)                  
-            for i_row in range(1,self.rowMax):
-                for i_col in range(1, self.colMax):
-                    check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)
- 
+                                if self.detectTime(cell.value) == False:
+                                    if self.detectPartOfGroup(cell.value) == False:
+                                        if i_row < self.rowMax and  i_col < self.colMax:                                                
+                                            if direction == self.DirectionOfGroupingUp.TOP:
+                                                if (i_row - 1) > 1:
+                                                    processed[i_row - 1][i_col] = origin_cell.value
+                                                    is_going = True
+                                                    check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
+                                            if direction == self.DirectionOfGroupingUp.BOTTOM:
+                                                if (i_row + 1) < self.rowMax:                                        
+                                                    processed[i_row + 1][i_col] = origin_cell.value
+                                                    is_going = True
+                                                    check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)
+                    else: #cell.value == None:
+                        if checkSide(cell, direction):
+                            if is_going:
+                                if i_row < self.rowMax and  i_col < self.colMax:                                                                                    
+                                    if direction == self.DirectionOfGroupingUp.TOP:
+                                        if (i_row - 1) > 1:
+                                            processed[i_row - 1][i_col] = origin_cell.value
+                                            check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
+                                    if direction == self.DirectionOfGroupingUp.BOTTOM:
+                                        if (i_row + 1) < self.rowMax:                               
+                                            processed[i_row + 1][i_col] = origin_cell.value
+                                            check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)                  
+        for i_row in range(1,self.rowMax):
+            for i_col in range(1, self.colMax):
+                check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)
+
         
     def __init__(self):
         super().__init__()

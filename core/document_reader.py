@@ -1,4 +1,6 @@
+import re
 from enum import Enum
+import openpyxl
 
 class DocumentReader():
     class DirectionOfGroupingUp(Enum):
@@ -111,10 +113,10 @@ class DocumentReader():
                 check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)
 
         
-    def __init__(self):
+    def __init__(self, docPath):
         super().__init__()
 
-        path = "D:\\git\\audit\\data\\1kurs.xlsx"
+        path = docPath
         self.rowMax = 100
         self.colMax = 25
         # To open the workbook 
@@ -125,28 +127,28 @@ class DocumentReader():
         # from the active attribute
         sheet_obj = wb_obj.active
 
-        self.setWindowTitle("Пример QTableWidget")
-        self.resize(600, 400)
+        #self.setWindowTitle("Пример QTableWidget")
+        #self.resize(600, 400)
 
         # Создание таблицы
-        self.table = QTableWidget()
-        self.table.setRowCount(self.rowMax)  # Количество строк
-        self.table.setColumnCount(self.colMax)  # Количество столбцов
+        #self.table = QTableWidget()
+        #self.table.setRowCount(self.rowMax)  # Количество строк
+        #self.table.setColumnCount(self.colMax)  # Количество столбцов
         #self.table.setHorizontalHeaderLabels(["Имя", "Возраст", "Город"])  # Заголовки столбцов
         
         # Избавится от объеденённых ячеек
-        processed = [ [0]*self.colMax for i in range(self.rowMax)]
-        self.unMergeCells(sheet_obj, processed)
-        self.groupUpBorders(sheet_obj, processed, self.DirectionOfGroupingUp.TOP)
-        self.groupUpBorders(sheet_obj, processed, self.DirectionOfGroupingUp.BOTTOM)
+        self.processed = [ [0]*self.colMax for i in range(self.rowMax)]
+        self.unMergeCells(sheet_obj, self.processed)
+        self.groupUpBorders(sheet_obj, self.processed, self.DirectionOfGroupingUp.TOP)
+        self.groupUpBorders(sheet_obj, self.processed, self.DirectionOfGroupingUp.BOTTOM)
 
 
-        for i_row in range(1,self.rowMax):
-            for i_col in range(1, self.colMax):
-                item = QTableWidgetItem(processed[i_row][i_col])
-                self.table.setItem(i_row - 1, i_col - 1, item)
+        #for i_row in range(1,self.rowMax):
+        #    for i_col in range(1, self.colMax):
+        #        item = QTableWidgetItem(processed[i_row][i_col])
+        #        self.table.setItem(i_row - 1, i_col - 1, item)
 
         # Компоновка
-        layout = QVBoxLayout()
-        layout.addWidget(self.table)
-        self.setLayout(layout)
+        #layout = QVBoxLayout()
+        #layout.addWidget(self.table)
+        #self.setLayout(layout)

@@ -1,10 +1,12 @@
-from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
-import openpyxl
-import re
 from enum import Enum
 
-class MainWindow(QWidget):
-   
+class DocumentReader():
+    class DirectionOfGroupingUp(Enum):
+        TOP = 0
+        BOTTOM = 1
+        RIGHT = 2
+        LEFT = 3
+
     def getMergedCellVal(self, sheet, cell):
         rng = [s for s in sheet.merged_cells.ranges if cell.coordinate in s]
         return sheet.cell(rng[0].min_row, rng[0].min_col).value if len(rng)!=0 else cell.value
@@ -36,12 +38,7 @@ class MainWindow(QWidget):
         if "п/гр" in string:
             return True
         else:
-            return False
-    class DirectionOfGroupingUp(Enum):
-        TOP = 0
-        BOTTOM = 1
-        RIGHT = 2
-        LEFT = 3
+            return False    
     
     def groupUpBorders(self, sheet_obj, processed, direction : DirectionOfGroupingUp):
         def check(i_row_parent, i_col_parent, i_row, i_col, is_going, sheet_obj, processed, direction : self.DirectionOfGroupingUp):
@@ -153,8 +150,3 @@ class MainWindow(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(self.table)
         self.setLayout(layout)
-
-app = QApplication([])
-window = MainWindow()
-window.show()
-app.exec()

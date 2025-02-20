@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
-
+from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog
 from core.data_model import InputData
 
 def GUI_input_show(inputData : InputData):
@@ -19,6 +19,20 @@ class GUI_main_window(QWidget):
         super().__init__()
         self.setWindowTitle("Утилита audit")
         self.resize(400, 300)
+    
+        self.path_text = QLineEdit(self)
+        self.path_text.setPlaceholderText("fffff")
+
+        self.button_choose = QPushButton("Browse", self)
+        self.button_choose.clicked.connect(self.choose_file)
+
+        self.layout_file_path = QHBoxLayout()
+        self.layout_file_path.addWidget(self.path_text)
+        self.layout_file_path.addWidget(self.button_choose)
+        self.setLayout(self.layout_file_path)
+    def choose_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Все файлы (*.*);;Текстовые файлы (*.txt);;Изображения (*.png *.jpg)")
+        pass
 
 class GUI_input(QWidget):
     def __init__(self, inputData : InputData):

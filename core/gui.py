@@ -36,7 +36,7 @@ class GUI_main_window(QWidget):
 
         self.layout_all = QVBoxLayout()
         self.layout_all.addLayout(self.layout_file_path)
-
+        
         self.layout_all_centered = QHBoxLayout()
         self.layout_all_centered.addWidget(self.button_run)
 
@@ -45,7 +45,7 @@ class GUI_main_window(QWidget):
 
         self.setLayout(self.layout_all)
     def choose_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Все файлы (*.*);;Текстовые файлы (*.txt);;Изображения (*.png *.jpg)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
         pass
 

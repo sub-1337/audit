@@ -8,7 +8,15 @@ def GUI_input_show(inputData : InputData):
     window.show()
     app.exec()  
     
-    
+def GUI_main_window_show():
+    app = QApplication([])
+    window = GUI_main_window()
+    window.show()
+    app.exec()      
+
+class GUI_main_window(QWidget):
+    def __init__(self):
+        super().__init__()
 
 class GUI_input(QWidget):
     def __init__(self, inputData : InputData):

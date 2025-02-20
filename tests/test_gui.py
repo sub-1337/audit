@@ -1,3 +1,3 @@
-
+from core.gui import RawInput
 def test():
-    pass
+    rawInput = RawInput()

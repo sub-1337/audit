@@ -1,6 +1,8 @@
 import re
 from enum import Enum
 import openpyxl
+from core.data_model import InputData
+
 
 class DocumentReader():
     class DirectionOfGroupingUp(Enum):
@@ -14,8 +16,8 @@ class DocumentReader():
         return sheet.cell(rng[0].min_row, rng[0].min_col).value if len(rng)!=0 else cell.value
     
     def unMergeCells(self, sheet_obj, processed):
-        for i_row in range(1,self.rowMax):
-            for i_col in range(1, self.colMax):              
+        for i_row in range(1,self.data.rowMax):
+            for i_col in range(1, self.data.colMax):              
                 cell = sheet_obj.cell(row=i_row, column=i_col)
                 if isinstance(cell, openpyxl.cell.cell.MergedCell):
                     value_merged = self.getMergedCellVal(sheet_obj, cell)
@@ -85,40 +87,40 @@ class DocumentReader():
                             if checkSide(cell, direction):
                                 if self.detectTime(cell.value) == False:
                                     if self.detectPartOfGroup(cell.value) == False:
-                                        if i_row < self.rowMax and  i_col < self.colMax:                                                
+                                        if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                
                                             if direction == self.DirectionOfGroupingUp.TOP:
                                                 if (i_row - 1) > 1:
                                                     processed[i_row - 1][i_col] = origin_cell.value
                                                     is_going = True
                                                     check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
                                             if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                                if (i_row + 1) < self.rowMax:                                        
+                                                if (i_row + 1) < self.data.rowMax:                                        
                                                     processed[i_row + 1][i_col] = origin_cell.value
                                                     is_going = True
                                                     check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)
                     else: #cell.value == None:
                         if checkSide(cell, direction):
                             if is_going:
-                                if i_row < self.rowMax and  i_col < self.colMax:                                                                                    
+                                if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                                                    
                                     if direction == self.DirectionOfGroupingUp.TOP:
                                         if (i_row - 1) > 1:
                                             processed[i_row - 1][i_col] = origin_cell.value
                                             check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
                                     if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                        if (i_row + 1) < self.rowMax:                               
+                                        if (i_row + 1) < self.data.rowMax:                               
                                             processed[i_row + 1][i_col] = origin_cell.value
                                             check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)                  
-        for i_row in range(1,self.rowMax):
-            for i_col in range(1, self.colMax):
+        for i_row in range(1,self.data.rowMax):
+            for i_col in range(1, self.data.colMax):
                 check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)
 
         
     def __init__(self, docPath):
         super().__init__()
-
+        self.data = InputData()
         path = docPath
-        self.rowMax = 100
-        self.colMax = 25
+        self.data.rowMax = 100
+        self.data.colMax = 25
         # To open the workbook 
         # workbook object is created
         wb_obj = openpyxl.load_workbook(path)
@@ -132,18 +134,18 @@ class DocumentReader():
 
         # Создание таблицы
         #self.table = QTableWidget()
-        #self.table.setRowCount(self.rowMax)  # Количество строк
+        #self.table.setRowCount(self.data.rowMax)  # Количество строк
         #self.table.setColumnCount(self.colMax)  # Количество столбцов
         #self.table.setHorizontalHeaderLabels(["Имя", "Возраст", "Город"])  # Заголовки столбцов
         
         # Избавится от объеденённых ячеек
-        self.processed = [ [0]*self.colMax for i in range(self.rowMax)]
-        self.unMergeCells(sheet_obj, self.processed)
-        self.groupUpBorders(sheet_obj, self.processed, self.DirectionOfGroupingUp.TOP)
-        self.groupUpBorders(sheet_obj, self.processed, self.DirectionOfGroupingUp.BOTTOM)
+        self.data.processed = [ [0]*self.data.colMax for i in range(self.data.rowMax)]
+        self.unMergeCells(sheet_obj, self.data.processed)
+        self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.TOP)
+        self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.BOTTOM)
 
 
-        #for i_row in range(1,self.rowMax):
+        #for i_row in range(1,self.data.rowMax):
         #    for i_col in range(1, self.colMax):
         #        item = QTableWidgetItem(processed[i_row][i_col])
         #        self.table.setItem(i_row - 1, i_col - 1, item)

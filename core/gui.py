@@ -19,7 +19,7 @@ class GUI_main_window(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Утилита audit")
-        self.resize(400, 300)
+        self.resize(400, 200)
     
         self.path_text = QLineEdit(self)
         self.path_text.setPlaceholderText("Path")
@@ -36,7 +36,7 @@ class GUI_main_window(QWidget):
 
         self.layout_all = QVBoxLayout()
         self.layout_all.addLayout(self.layout_file_path)
-        
+
         self.layout_all_centered = QHBoxLayout()
         self.layout_all_centered.addWidget(self.button_run)
 

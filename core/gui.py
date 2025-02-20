@@ -17,11 +17,13 @@ def GUI_main_window_show():
 class GUI_main_window(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Утилита audit")
+        self.resize(400, 300)
 
 class GUI_input(QWidget):
     def __init__(self, inputData : InputData):
         super().__init__()
-        self.setWindowTitle("Пример QTableWidget")
+        self.setWindowTitle("Отладочный вывод парсинга")
         self.resize(600, 400)
 
         self.table = QTableWidget()

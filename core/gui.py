@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog
+from PyQt6.QtCore import Qt
 from core.data_model import InputData
 
 def GUI_input_show(inputData : InputData):
@@ -21,17 +22,31 @@ class GUI_main_window(QWidget):
         self.resize(400, 300)
     
         self.path_text = QLineEdit(self)
-        self.path_text.setPlaceholderText("fffff")
-
+        self.path_text.setPlaceholderText("Path")
+        
         self.button_choose = QPushButton("Browse", self)
         self.button_choose.clicked.connect(self.choose_file)
+
+        self.button_run = QPushButton("Ok", self)
+        self.button_run.setFixedWidth(100)
 
         self.layout_file_path = QHBoxLayout()
         self.layout_file_path.addWidget(self.path_text)
         self.layout_file_path.addWidget(self.button_choose)
-        self.setLayout(self.layout_file_path)
+
+        self.layout_all = QVBoxLayout()
+        self.layout_all.addLayout(self.layout_file_path)
+
+        self.layout_all_centered = QHBoxLayout()
+        self.layout_all_centered.addWidget(self.button_run)
+
+        self.layout_all.addLayout(self.layout_all_centered)
+        self.layout_all.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.setLayout(self.layout_all)
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Все файлы (*.*);;Текстовые файлы (*.txt);;Изображения (*.png *.jpg)")
+        self.path_text.setText(file_path)
         pass
 
 class GUI_input(QWidget):

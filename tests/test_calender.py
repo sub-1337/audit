@@ -15,7 +15,7 @@ def test():
             [3, 2025, 1, 1],
             [6, 2027, 5, 1]]
     for day in days:
-        day_in_fact = weekday(year = day[1], month = day[2], day = day[3])
+        day_in_fact = weekday(day[1], day[2], day[3])
         if day[0] == day_in_fact:
             print("ok", day)
         else:

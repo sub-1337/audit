@@ -4,7 +4,7 @@ def print_calendar(year, month):
     cal = calendar.TextCalendar(firstweekday=7)
     print(cal.formatmonth(year, month))
 
-def weekday(self, year: int, month: int, day: int) -> int:
+def weekday(year: int, month: int, day: int) -> int:
     if month < 3:
         year -= 1
         month += 10

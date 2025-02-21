@@ -1,8 +1,10 @@
-from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout
+from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel
+from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox
 from PyQt6.QtCore import Qt
 from core.data_model import InputData, CalenderData
 from core.control import CreateDocument
+import calendar
+from datetime import datetime, timedelta
 
 def GUI_input_show(inputData : InputData):
     app = QApplication([])
@@ -28,16 +30,88 @@ class GUI_calendar(QWidget):
         self.setWindowTitle("Режим календаря")
         self.resize(400, 200)
 
-        self.grid = QGridLayout()
+        #self.grid = QGridLayout()
         """self.grid.addWidget(QPushButton('Button 1'), 0,0)
         self.grid.addWidget(QPushButton('Button 2'), 1,0)
         self.grid.addWidget(QPushButton('Button 3'), 2,0)
         self.grid.addWidget(QPushButton('Button 4'), 3,0)"""
+        self.initUI()
+
+
+        #self.setLayout(self.grid)
+        #self.show()
+    def initUI(self):
+        self.layout = QVBoxLayout()
         
-
-
-        self.setLayout(self.grid)
-        self.show()
+        self.year_input = QSpinBox()
+        self.year_input.setRange(1900, 2100)
+        self.year_input.setValue(2024)
+        
+        self.month_input = QSpinBox()
+        self.month_input.setRange(1, 12)
+        self.month_input.setValue(2)
+        
+        self.week_input = QSpinBox()
+        self.week_input.setRange(1, 53)
+        self.week_input.setValue(1)
+        
+        self.day_input = QSpinBox()
+        self.day_input.setRange(0, 6)
+        self.day_input.setValue(0)
+        
+        self.year_input.valueChanged.connect(self.update_calendar)
+        self.month_input.valueChanged.connect(self.update_calendar)
+        
+        self.layout.addWidget(QLabel("Выберите год:"))
+        self.layout.addWidget(self.year_input)
+        self.layout.addWidget(QLabel("Выберите месяц:"))
+        self.layout.addWidget(self.month_input)
+        
+        self.grid_layout = QGridLayout()
+        self.layout.addLayout(self.grid_layout)
+        
+        self.layout.addWidget(QLabel("Выберите номер недели:"))
+        self.layout.addWidget(self.week_input)
+        self.layout.addWidget(QLabel("Выберите день недели (0 - Пн, 6 - Вс):"))
+        self.layout.addWidget(self.day_input)
+        
+        self.date_label = QLabel("Дата:")
+        self.layout.addWidget(self.date_label)
+        
+        self.week_input.valueChanged.connect(self.get_date_from_week)
+        self.day_input.valueChanged.connect(self.get_date_from_week)
+        
+        self.setLayout(self.layout)
+        self.update_calendar()
+    
+    def update_calendar(self):
+        for i in reversed(range(self.grid_layout.count())):
+            self.grid_layout.itemAt(i).widget().setParent(None)
+        
+        year = self.year_input.value()
+        month = self.month_input.value()
+        cal = calendar.monthcalendar(year, month)
+        
+        days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+        for col, day in enumerate(days):
+            self.grid_layout.addWidget(QLabel(day), 0, col)
+        
+        for row, week in enumerate(cal, start=1):
+            for col, day in enumerate(week):
+                if day != 0:
+                    btn = QPushButton(str(day))
+                    self.grid_layout.addWidget(btn, row, col)
+    
+    def get_date_from_week(self):
+        year = self.year_input.value()
+        week = self.week_input.value()
+        day = self.day_input.value()
+        
+        first_day = datetime(year, 1, 1)
+        first_monday = first_day + timedelta(days=(7 - first_day.weekday()) % 7)
+        date = first_monday + timedelta(weeks=week-1, days=day)
+        
+        self.date_label.setText(f"Дата: {date.strftime('%d.%m.%Y')}")
 
 class GUI_main_window(QWidget):
     def __init__(self):

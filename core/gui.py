@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxL
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog
 from PyQt6.QtCore import Qt
 from core.data_model import InputData
-from core.document_reader import DocumentReader
+from core.control import CreateDocument
 
 def GUI_input_show(inputData : InputData):
     app = QApplication([])
@@ -54,8 +54,7 @@ class GUI_main_window(QWidget):
         path = self.path_text.text()
         if not path:
             return
-        reader = DocumentReader(path)
-        data = reader.data
+        data = CreateDocument(path)
         self.run_menue = GUI_input(data)
         self.hide()
         self.run_menue.show()

@@ -16,6 +16,13 @@ def GUI_main_window_show():
     window.show()
     app.exec()      
 
+class GUI_calendar(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Утилита audit")
+        self.resize(400, 200)
+        self.show()
+
 class GUI_main_window(QWidget):
     def __init__(self):
         super().__init__()
@@ -32,6 +39,10 @@ class GUI_main_window(QWidget):
         self.button_run.clicked.connect(self.open_file)
         self.button_run.setFixedWidth(100)
 
+        self.button_show_doc = QPushButton("View", self)
+        self.button_show_doc.clicked.connect(self.show_document)
+        self.button_show_doc.setFixedWidth(100)
+
         self.layout_file_path = QHBoxLayout()
         self.layout_file_path.addWidget(self.path_text)
         self.layout_file_path.addWidget(self.button_choose)
@@ -41,6 +52,7 @@ class GUI_main_window(QWidget):
 
         self.layout_all_centered = QHBoxLayout()
         self.layout_all_centered.addWidget(self.button_run)
+        self.layout_all_centered.addWidget(self.button_show_doc)
 
         self.layout_all.addLayout(self.layout_all_centered)
         self.layout_all.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -51,18 +63,22 @@ class GUI_main_window(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
     def open_file(self):        
+        self.calender = GUI_calendar()
+        self.calender.show()
+    def show_document(self):
         path = self.path_text.text()
         if not path:
             return
         data = CreateDocument(path)
-        self.run_menue = GUI_input(data)
+        self.run_menue = GUI_input(data, self)
         self.hide()
         self.run_menue.show()
 
-
+# Получает данные и родительское окно (чтобы восстановить его после закрытия текущего)
 class GUI_input(QWidget):
-    def __init__(self, inputData : InputData):
+    def __init__(self, inputData : InputData, parent : QWidget):
         super().__init__()
+        self.parent = parent
         self.setWindowTitle("Отладочный вывод парсинга")
         self.resize(600, 400)
 
@@ -78,3 +94,7 @@ class GUI_input(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(self.table)
         self.setLayout(layout)
+    def closeEvent(self, event):
+        if self.parent:
+            self.parent.show()
+        event.accept()

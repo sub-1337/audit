@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxL
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog
 from PyQt6.QtCore import Qt
 from core.data_model import InputData
+from core.document_reader import DocumentReader
 
 def GUI_input_show(inputData : InputData):
     app = QApplication([])
@@ -28,6 +29,7 @@ class GUI_main_window(QWidget):
         self.button_choose.clicked.connect(self.choose_file)
 
         self.button_run = QPushButton("Ok", self)
+        self.button_run.clicked.connect(self.open_file)
         self.button_run.setFixedWidth(100)
 
         self.layout_file_path = QHBoxLayout()
@@ -44,10 +46,20 @@ class GUI_main_window(QWidget):
         self.layout_all.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(self.layout_all)
+
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
-        pass
+    def open_file(self):        
+        path = self.path_text.text()
+        if not path:
+            return
+        reader = DocumentReader(path)
+        data = reader.data
+        self.run_menue = GUI_input(data)
+        self.hide()
+        self.run_menue.show()
+
 
 class GUI_input(QWidget):
     def __init__(self, inputData : InputData):

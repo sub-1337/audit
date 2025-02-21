@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog
+from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout
 from PyQt6.QtCore import Qt
 from core.data_model import InputData, CalenderData
 from core.control import CreateDocument
@@ -27,6 +27,16 @@ class GUI_calendar(QWidget):
         super().__init__()
         self.setWindowTitle("Режим календаря")
         self.resize(400, 200)
+
+        self.grid = QGridLayout()
+        """self.grid.addWidget(QPushButton('Button 1'), 0,0)
+        self.grid.addWidget(QPushButton('Button 2'), 1,0)
+        self.grid.addWidget(QPushButton('Button 3'), 2,0)
+        self.grid.addWidget(QPushButton('Button 4'), 3,0)"""
+        
+
+
+        self.setLayout(self.grid)
         self.show()
 
 class GUI_main_window(QWidget):

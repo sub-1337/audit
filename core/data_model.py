@@ -5,3 +5,7 @@ class InputData():
         self.rowMax = 0
         self.colMax = 0
         self.processed = []
+
+class CalenderData():
+    def __init__(self):
+        pass

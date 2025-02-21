@@ -1,12 +1,12 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog
 from PyQt6.QtCore import Qt
-from core.data_model import InputData
+from core.data_model import InputData, CalenderData
 from core.control import CreateDocument
 
 def GUI_input_show(inputData : InputData):
     app = QApplication([])
-    window = GUI_input(inputData)
+    window = GUI_input(inputData, None)
     window.show()
     app.exec()  
     
@@ -16,10 +16,16 @@ def GUI_main_window_show():
     window.show()
     app.exec()      
 
+def GUI_calender_window_show(calenderData : CalenderData):
+    app = QApplication([])
+    window = GUI_calendar(calenderData)
+    window.show()
+    app.exec()     
+
 class GUI_calendar(QWidget):
-    def __init__(self):
+    def __init__(self, calenderData : CalenderData):
         super().__init__()
-        self.setWindowTitle("Утилита audit")
+        self.setWindowTitle("Режим календаря")
         self.resize(400, 200)
         self.show()
 

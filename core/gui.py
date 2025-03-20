@@ -6,23 +6,28 @@ from core.control import CreateDocument
 import calendar
 from datetime import datetime, timedelta
 
+# debug
+"""
 def GUI_input_show(inputData : InputData):
     app = QApplication([])
     window = GUI_input(inputData, None)
     window.show()
     app.exec()  
-    
+"""
 def GUI_main_window_show():
     app = QApplication([])
     window = GUI_main_window()
     window.show()
-    app.exec()      
+    app.exec()  
 
+# debug    
+"""
 def GUI_calender_window_show(calenderData : CalenderData):
     app = QApplication([])
     window = GUI_calendar(calenderData)
     window.show()
     app.exec()     
+"""
 
 class GUI_calendar(QWidget):
     def __init__(self, calenderData : CalenderData):
@@ -153,7 +158,7 @@ class GUI_main_window(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
     def open_file(self):        
-        self.calender = GUI_calendar()
+        self.calender = GUI_calendar(self)
         self.calender.show()
     def show_document(self):
         path = self.path_text.text()
@@ -178,9 +183,16 @@ class GUI_input(QWidget):
 
         for i_row in range(1,inputData.rowMax):
             for i_col in range(1, inputData.colMax):
-                item = QTableWidgetItem(inputData.processed[i_row][i_col])
-                self.table.setItem(i_row - 1, i_col - 1, item)\
-                
+                if inputData.processed[i_row][i_col]:
+                    item = QTableWidgetItem(inputData.processed[i_row][i_col])
+                else:
+                    item = QTableWidgetItem("")
+                self.table.setItem(i_row - 1, i_col - 1, item)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) 
+        
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+
         layout = QVBoxLayout()
         layout.addWidget(self.table)
         self.setLayout(layout)

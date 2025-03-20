@@ -114,7 +114,14 @@ class DocumentReader():
             for i_col in range(1, self.data.colMax):
                 check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)
 
-        
+    def filterSpaces(self, table):
+        for i_row in range(1,self.data.rowMax):
+            for i_col in range(1, self.data.colMax):
+                blockStr = table[i_row][i_col]
+                if not blockStr:
+                    blockStr = ""
+                table[i_row][i_col] = " ".join(blockStr.split())
+
     def __init__(self, docPath):
         super().__init__()
         self.data = InputData()
@@ -144,6 +151,7 @@ class DocumentReader():
         self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.TOP)
         self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.BOTTOM)
 
+        self.filterSpaces(self.data.processed)
 
         #for i_row in range(1,self.data.rowMax):
         #    for i_col in range(1, self.colMax):

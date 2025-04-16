@@ -162,3 +162,9 @@ class DocumentReader():
         #layout = QVBoxLayout()
         #layout.addWidget(self.table)
         #self.setLayout(layout)
+
+    def GetDay(day, month, year):
+        pass
+    
+    def GetDay(week, weekday):
+        pass

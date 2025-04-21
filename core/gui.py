@@ -1,10 +1,11 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox
 from PyQt6.QtCore import Qt
-from core.data_model import InputData, CalenderData
-from core.control import CreateDocument
+from core.data_model import InputData
+from core.control import ReadDocument
 import calendar
 from datetime import datetime, timedelta
+from functools import partial
 
 # debug
 """
@@ -29,37 +30,42 @@ def GUI_calender_window_show(calenderData : CalenderData):
     app.exec()     
 """
 
+class GUI_day(QWidget):
+    def __init__(self, year, month, day):
+        super().__init__()
+        self.setWindowTitle("Просмотр дня")
+        self.resize(400, 200)
+    def iniutUI(self):
+        pass
+
+
 class GUI_calendar(QWidget):
-    def __init__(self, calenderData : CalenderData):
+    def __init__(self, parent):
         super().__init__()
         self.setWindowTitle("Режим календаря")
         self.resize(400, 200)
-
-        #self.grid = QGridLayout()
-        """self.grid.addWidget(QPushButton('Button 1'), 0,0)
-        self.grid.addWidget(QPushButton('Button 2'), 1,0)
-        self.grid.addWidget(QPushButton('Button 3'), 2,0)
-        self.grid.addWidget(QPushButton('Button 4'), 3,0)"""
+        self.parent = parent
         self.initUI()
 
-
-        #self.setLayout(self.grid)
-        #self.show()
     def initUI(self):
         self.layout = QVBoxLayout()
         
+        # Год
         self.year_input = QSpinBox()
         self.year_input.setRange(1900, 2100)
         self.year_input.setValue(2024)
         
+        # Месяц
         self.month_input = QSpinBox()
         self.month_input.setRange(1, 12)
         self.month_input.setValue(2)
         
+        # Номер недели
         self.week_input = QSpinBox()
         self.week_input.setRange(1, 53)
         self.week_input.setValue(1)
         
+        # День недели
         self.day_input = QSpinBox()
         self.day_input.setRange(0, 6)
         self.day_input.setValue(0)
@@ -105,8 +111,15 @@ class GUI_calendar(QWidget):
             for col, day in enumerate(week):
                 if day != 0:
                     btn = QPushButton(str(day))
+                    btn.clicked.connect(partial(self.click_day_button, day))
                     self.grid_layout.addWidget(btn, row, col)
     
+    def click_day_button(self, day):
+        year = self.year_input.value()
+        week = self.month_input.value()
+        self.day_widget = GUI_day(year, week, day)
+        self.day_widget.show()
+
     def get_date_from_week(self):
         year = self.year_input.value()
         week = self.week_input.value()
@@ -164,7 +177,7 @@ class GUI_main_window(QWidget):
         path = self.path_text.text()
         if not path:
             return
-        data = CreateDocument(path)
+        data = ReadDocument(path)
         self.run_menue = GUI_input(data, self)
         self.hide()
         self.run_menue.show()

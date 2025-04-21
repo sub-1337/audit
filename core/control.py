@@ -1,6 +1,6 @@
 from core.document_reader import DocumentReader, InputData
 
-def CreateDocument(path : str):
+def ReadDocument(path : str):
     document = DocumentReader(path)
     return document.data
 

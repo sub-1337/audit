@@ -45,8 +45,19 @@ class CalenderRow():
         self.row.append(block)
 
 class CalenderDay():
-    def __init__(self, day : date):
+    def __init__(self, date : date):
         self.rows = []
-        self.day = day
+        self.date = date
     def addRow(self, row : CalenderRow):
         self.rows.append(row)
+
+class CalenderYear():
+    def __init__(self):
+        self.allDays= []
+    def addDay(self, calenderDay : CalenderDay):        
+        self.allDays.append(calenderDay)
+    def getDay(self, year, month, day):
+        for d in self.allDays:
+            if (d.date.year == year) and (d.date.month == month) and (d.date.day == day):
+                return d
+        return None

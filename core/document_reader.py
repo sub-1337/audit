@@ -2,6 +2,8 @@ import re
 from enum import Enum
 import openpyxl
 from core.data_model import InputData
+import core.data_model as dm
+import datetime as dt
 
 
 class DocumentReader():
@@ -125,6 +127,7 @@ class DocumentReader():
     def __init__(self, docPath):
         super().__init__()
         self.data = InputData()
+        self.dataYear = dm.CalenderYear()
         path = docPath
         self.data.rowMax = 100
         self.data.colMax = 25
@@ -153,18 +156,26 @@ class DocumentReader():
 
         self.filterSpaces()
 
-        #for i_row in range(1,self.data.rowMax):
-        #    for i_col in range(1, self.colMax):
-        #        item = QTableWidgetItem(processed[i_row][i_col])
-        #        self.table.setItem(i_row - 1, i_col - 1, item)
+        self.parseYear()
 
-        # Компоновка
-        #layout = QVBoxLayout()
-        #layout.addWidget(self.table)
-        #self.setLayout(layout)
+    def parseYear(self): 
+        # DEBUG
+        calenderDay = dm.CalenderDay(dm.date(2025, 4, 25))
+        row1 = dm.CalenderRow()
+        row2 = dm.CalenderRow()
 
-    def GetDay(day, month, year):
-        pass
+        row1.addBlock(dm.CalenderBlock(dt.time(10, 0), dm.Auditory("5442")))
+        row1.addBlock(dm.CalenderBlock(dt.time(12, 0), dm.Auditory("1442")))
+        row1.addBlock(dm.CalenderBlock(dt.time(14, 0), dm.Auditory("3442")))
+        calenderDay.addRow(row1)
+
+        row2.addBlock(dm.CalenderBlock(dt.time(10, 0), dm.Auditory("6112")))
+        calenderDay.addRow(row2)
+
+        self.dataYear.addDay(calenderDay)
+
+    def GetDataYear(self, year, month, day):
+        return self.dataYear
     
-    def GetDay(week, weekday):
+    def GetDay(self, week, weekday):
         pass

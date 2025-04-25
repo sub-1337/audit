@@ -1,9 +1,9 @@
 from core.document_reader import DocumentReader, InputData
 
-def ReadDocument(path : str):
+"""def ReadDocument(path : str):
     document = DocumentReader(path)
-    return document.data
-
+    return document.data"""
+"""
 def GetByDay(data : InputData):
     
-    pass
+    pass"""

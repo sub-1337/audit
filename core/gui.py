@@ -2,10 +2,12 @@ from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxL
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox
 from PyQt6.QtCore import Qt
 from core.data_model import InputData
-from core.control import ReadDocument
+import core.data_model as dm
+#from core.control import ReadDocument
 import calendar
 from datetime import datetime, timedelta
 from functools import partial
+from core.document_reader import DocumentReader
 
 # debug
 """
@@ -31,21 +33,27 @@ def GUI_calender_window_show(calenderData : CalenderData):
 """
 
 class GUI_day(QWidget):
-    def __init__(self, year, month, day):
+    def __init__(self, calender : dm.CalenderYear , year, month, day):
         super().__init__()
         self.setWindowTitle("Просмотр дня")
         self.resize(400, 200)
+        day = calender.getDay(year, month, day)
+
+        
+
+        pass
     def iniutUI(self):
         pass
 
 
 class GUI_calendar(QWidget):
-    def __init__(self, parent):
+    def __init__(self, dataCalender : dm.CalenderYear, parent):
         super().__init__()
         self.setWindowTitle("Режим календаря")
         self.resize(400, 200)
         self.parent = parent
         self.initUI()
+        self.dataCalender = dataCalender
 
     def initUI(self):
         self.layout = QVBoxLayout()
@@ -117,7 +125,7 @@ class GUI_calendar(QWidget):
     def click_day_button(self, day):
         year = self.year_input.value()
         week = self.month_input.value()
-        self.day_widget = GUI_day(year, week, day)
+        self.day_widget = GUI_day(self.dataCalender, year, week, day)
         self.day_widget.show()
 
     def get_date_from_week(self):
@@ -167,20 +175,25 @@ class GUI_main_window(QWidget):
 
         self.setLayout(self.layout_all)
 
+        self.document = None
+
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
-    def open_file(self):        
-        self.calender = GUI_calendar(self)
+        self.readDoc()
+    def open_file(self):       
+        self.calender = GUI_calendar(self.document.dataYear, self)
         self.calender.show()
-    def show_document(self):
+    def show_document(self):     
+        #self.readDoc()
+        self.run_menue = GUI_input(self.document.data, self)
+        self.hide()
+        self.run_menue.show()
+    def readDoc(self):
         path = self.path_text.text()
         if not path:
             return
-        data = ReadDocument(path)
-        self.run_menue = GUI_input(data, self)
-        self.hide()
-        self.run_menue.show()
+        self.document = DocumentReader(path)
 
 # Получает данные и родительское окно (чтобы восстановить его после закрытия текущего)
 class GUI_input(QWidget):

@@ -14,4 +14,11 @@ def test():
     row2.addBlock(dm.CalenderBlock(dt.time(10, 0), dm.Auditory("6112")))
     calenderDay.addRow(row2)
 
+    calenderYear = dm.CalenderYear()
+    calenderYear.addDay(calenderDay)
+
+    assert(calenderYear.getDay(2025, 4, 17) == calenderDay)
+
+    pass
+
     

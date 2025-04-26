@@ -34,15 +34,60 @@ def GUI_calender_window_show(calenderData : CalenderData):
 
 class GUI_day(QWidget):
     def __init__(self, calender : dm.CalenderYear , year, month, day):
-        super().__init__()
+        """super().__init__()
         self.setWindowTitle("Просмотр дня")
         self.resize(400, 200)
         day = calender.getDay(year, month, day)
 
+        self.layout = QVBoxLayout()
+        self.table = QTableWidget()
+        self.table.setRowCount(10)  # Количество строк
+        self.table.setColumnCount(10)
+        for i in range(10):
+            for j in range(10):
+                self.table.setItem(i,j,QTableWidgetItem(f"{i},{j}"))
+        self.layout.addWidget(self.table)
+        
+        self.initUI()"""
+        super().__init__()
+        self.setWindowTitle('PyQt6 Table Example')
+        self.setGeometry(100, 100, 800, 600)  # x, y, width, height
+
+        day: dm.CalenderDay = calender.getDay(year, month, day)
+        day.CalcArrayByAudirory()
+        auditories, auditoriesWarning = day.ReturnArrayByAudirory()
         
 
-        pass
-    def iniutUI(self):
+
+        # Create a table
+        self.table = QTableWidget()
+        self.table.setRowCount(len(auditories))    # 3 rows
+        self.table.setColumnCount(3) # 3 columns
+        self.table.setHorizontalHeaderLabels(['Name', 'Age', 'City'])
+
+        i = 0
+        for auditorie, times in auditories.items():
+            self.table.setItem(i, 0, QTableWidgetItem(str(auditorie)))
+            i += 1
+
+        # Add some example data
+        i = 0
+        j = 1
+        for auditorie, times in auditories.items():
+            for time in times:                
+                if (j < 3):
+                    self.table.setItem(i, j, QTableWidgetItem(str(time)))
+                j += 1
+            i += 1
+            j = 1
+    
+
+
+        # Set layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.table)
+        self.setLayout(layout)
+    def initUI(self):
         pass
 
 
@@ -61,12 +106,12 @@ class GUI_calendar(QWidget):
         # Год
         self.year_input = QSpinBox()
         self.year_input.setRange(1900, 2100)
-        self.year_input.setValue(2024)
+        self.year_input.setValue(2025)
         
         # Месяц
         self.month_input = QSpinBox()
         self.month_input.setRange(1, 12)
-        self.month_input.setValue(2)
+        self.month_input.setValue(9)
         
         # Номер недели
         self.week_input = QSpinBox()
@@ -153,10 +198,12 @@ class GUI_main_window(QWidget):
 
         self.button_run = QPushButton("Ok", self)
         self.button_run.clicked.connect(self.open_file)
+        self.button_run.setDisabled(True) 
         self.button_run.setFixedWidth(100)
 
         self.button_show_doc = QPushButton("View", self)
         self.button_show_doc.clicked.connect(self.show_document)
+        self.button_show_doc.setDisabled(True)
         self.button_show_doc.setFixedWidth(100)
 
         self.layout_file_path = QHBoxLayout()
@@ -181,6 +228,8 @@ class GUI_main_window(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
         self.readDoc()
+        self.button_run.setDisabled(False)
+        self.button_show_doc.setDisabled(False)
     def open_file(self):       
         self.calender = GUI_calendar(self.document.dataYear, self)
         self.calender.show()

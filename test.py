@@ -17,6 +17,6 @@ if len(sys.argv) >= 2:
         print("---Test of gui---")
         test_gui()"""
 
-from tests.test_gui import test as test_gui
+"""from tests.test_gui import test as test_gui
 print("---Test of gui---")
-test_gui()
+test_gui()"""

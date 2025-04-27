@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox
+from PyQt6.QtGui import QColor
 from PyQt6.QtCore import Qt
 from core.data_model import InputData
 import core.data_model as dm
@@ -55,17 +56,29 @@ class GUI_day(QWidget):
 
         day: dm.CalenderDay = calender.getDay(year, month, day)
         day.CalcArrayByAudirory()
-        auditories, auditoriesWarning = day.ReturnArrayByAudirory()
+        auditorArr = day.ReturnArrayByAuditory()
         
+        rowCount = len(auditorArr)
+        columnCoun = 7
 
+        assert(len(auditorArr[0]) == columnCoun)
 
         # Create a table
-        self.table = QTableWidget()
-        self.table.setRowCount(len(auditories))    # 3 rows
-        self.table.setColumnCount(3) # 3 columns
-        self.table.setHorizontalHeaderLabels(['Name', 'Age', 'City'])
 
-        i = 0
+        self.table = QTableWidget()
+        self.table.setRowCount(rowCount)    # 3 rows
+        self.table.setColumnCount(columnCoun) # 3 columns
+        self.table.setHorizontalHeaderLabels(['Аудитория', 'Пара 1', 'Пара 2', 'Пара 3', 'Пара 4', 'Пара 5', 'Пара 6'])
+
+        for row_i in range(rowCount):
+            for col_j in range(columnCoun):
+                cell = QTableWidgetItem(str(auditorArr[row_i][col_j]))
+                if isinstance(auditorArr[row_i][col_j], dm.Para) and  auditorArr[row_i][col_j].markedOverlap:
+                    cell.setForeground(QColor('red'))
+                self.table.setItem(row_i, col_j, cell)
+
+
+        """i = 0
         for auditorie, times in auditories.items():
             self.table.setItem(i, 0, QTableWidgetItem(str(auditorie)))
             i += 1
@@ -80,7 +93,7 @@ class GUI_day(QWidget):
                 j += 1
             i += 1
             j = 1
-    
+    """
 
 
         # Set layout

@@ -39,20 +39,46 @@ class Auditory():
         return isinstance(other, Auditory) and self.number == other.number
     def __str__(self):
         return f"{self.number}"
+    def __repr__(self):
+        return str(self)
     
 class Para():
     def __init__(self, number):
         self.number = number
+        self.markedOverlap = False
     def __hash__(self):
         return hash((self.number))    
     def __eq__(self, other):
         return isinstance(other, Para) and self.number == other.number
+    def __str__(self):
+        return f"para {self.number}"
+    def __repr__(self):
+        return str(self)
+
+class Subject():
+    def __init__(self):
+        pass
+
+class Professor():
+    def __init__(self):
+        pass
+
+class Group():
+    def __init__(self):
+        pass
 
 class CalenderBlock():
-    def __init__(self, time, para : Para, auditory : Auditory):
+    def __init__(self, time, para : Para, auditory : Auditory, subject : Subject, professor : Professor, group : Group):
         self.time = time
         self.para = para
         self.auditory = auditory
+        self.subject = subject
+        self.professor = professor
+        self.group = group
+    def __str__(self):
+        return f"calender: time {self.time}, para {self.para}, auditory {self.auditory}, subject {self.subject}, professor {self.professor}, group {self.group}"
+    def __repr__(self):
+        return str(self)
 
 class CalenderDay():
     def __init__(self, date : date):
@@ -67,25 +93,46 @@ class CalenderDay():
     def CalcArrayByAudirory(self):
         self.auditories = {}
         self.auditoriesWarning = {}
+        
         for block in self.blocks:
             auditory: Auditory = block.auditory
             time: dt.datetime.time = block.time
+            para: Para = block.para
             if (self.auditories.get(auditory) is None):
-                self.auditories[auditory] = [time]
+                self.auditories[auditory] = [(time, para,)]
             else:
-                self.auditories[auditory].append(time)
+                self.auditories[auditory].append((time, para,))
         for auditorie, time in self.auditories.items():
             for i in range(len(time)):
                 for j in range(len(time)):
                     if i != j and time[i] == time[j]:
-                        self.auditoriesWarning[auditorie] = "OVERLAP " + str(time[i])
+                        if (self.auditoriesWarning.get(auditory) is None):
+                            self.auditoriesWarning[auditorie] = [time[i]]
+                        else:
+                            self.auditoriesWarning[auditorie].append(time[i])
         for auditorie, time in self.auditories.items():
             time.sort()
-        for auditorie, time in self.auditories.items():
-            time.sort()
+        pass
+        
     def ReturnArrayByAuditory(self):
-        for i in range(1,7):
-            pass
+        self.CalcArrayByAudirory()
+
+        rows, cols = len(self.auditories), 7
+        array = [["" for _ in range(cols)] for _ in range(rows)]
+
+        for i in range(len(array)):
+            auditory, time = list(self.auditories.items())[i]
+            array[i][0] = auditory
+            j = 1
+            for v in time:
+                n = v[1].number
+                array[i][n] = v[1]
+                #if self.auditoriesWarning[auditory]
+                if self.auditoriesWarning.get(auditory):
+                    array[i][n].markedOverlap = True
+                j += 1
+        return array
+           
 
 
 

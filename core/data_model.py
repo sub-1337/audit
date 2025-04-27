@@ -1,5 +1,6 @@
 from datetime import date
 import datetime as dt
+from enum import Enum
 
 def test():
     pass
@@ -45,7 +46,6 @@ class Auditory():
 class Para():
     def __init__(self, number):
         self.number = number
-        self.markedOverlap = False
     def __hash__(self):
         return hash((self.number))    
     def __eq__(self, other):
@@ -56,29 +56,86 @@ class Para():
         return str(self)
 
 class Subject():
-    def __init__(self):
-        pass
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return f"{self.name}"
+    def __repr__(self):
+        return str(self)
 
 class Professor():
-    def __init__(self):
-        pass
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return f"{self.name}"
+    def __repr__(self):
+        return str(self)
 
 class Group():
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return f"{self.name}"
+    def __repr__(self):
+        return str(self)
+
+class Id():
+    def __init__(self, idNumber):
+        self.idNumber = idNumber
+    def __hash__(self):
+        return hash((self.idNumber))    
+    def __eq__(self, other):
+        return isinstance(other, Id) and self.idNumber == other.idNumber
+    def __str__(self):
+        return f"Id {self.idNumber}"
+    def __repr__(self):
+        return str(self)
+
+class RuleSubgroup(Enum):
+    DEFAULT = 0
+    Group_1 = 1
+    Group_2 = 2
+    Group_3 = 3
+    Group_4 = 4
+    
+class RuleEven(Enum):
+    DEFAULT = 0
+    # Нечётное
+    ODD = 1
+    # Нечётное
+    EVEN = 2
+    # Определённые недели
+    CUSTOM = 3
+
+class Rule():
+    def __init__(self, auditory : Auditory, even : RuleEven = RuleEven.DEFAULT, week = [], subgroup : RuleSubgroup = RuleSubgroup.DEFAULT):
+        self.auditory = auditory
+        self.even = even
+        self.week = week
+        self.subgroup = subgroup
+        
+        
+        
+class CalenderRules():
     def __init__(self):
         pass
 
 class CalenderBlock():
-    def __init__(self, time, para : Para, auditory : Auditory, subject : Subject, professor : Professor, group : Group):
+    def __init__(self, id : Id, time, para : Para, auditory : Auditory, subject : Subject, professor : Professor, group : Group):
+        self.id = id
         self.time = time
         self.para = para
         self.auditory = auditory
         self.subject = subject
         self.professor = professor
         self.group = group
+        self.overlapWith = []
     def __str__(self):
-        return f"calender: time {self.time}, para {self.para}, auditory {self.auditory}, subject {self.subject}, professor {self.professor}, group {self.group}"
+        return f"calender block: id {self.id}, time {self.time}, para {self.para}, auditory {self.auditory}, subject {self.subject}, professor {self.professor}, group {self.group}"
     def __repr__(self):
         return str(self)
+    def IsSameTime(self, block):
+        return self.para == block.para
 
 class CalenderDay():
     def __init__(self, date : date):
@@ -92,27 +149,23 @@ class CalenderDay():
         return self.date
     def CalcArrayByAudirory(self):
         self.auditories = {}
-        self.auditoriesWarning = {}
         
         for block in self.blocks:
             auditory: Auditory = block.auditory
             time: dt.datetime.time = block.time
             para: Para = block.para
             if (self.auditories.get(auditory) is None):
-                self.auditories[auditory] = [(time, para,)]
+                self.auditories[auditory] = [block]
             else:
-                self.auditories[auditory].append((time, para,))
-        for auditorie, time in self.auditories.items():
-            for i in range(len(time)):
-                for j in range(len(time)):
-                    if i != j and time[i] == time[j]:
-                        if (self.auditoriesWarning.get(auditory) is None):
-                            self.auditoriesWarning[auditorie] = [time[i]]
-                        else:
-                            self.auditoriesWarning[auditorie].append(time[i])
-        for auditorie, time in self.auditories.items():
-            time.sort()
-        pass
+                self.auditories[auditory].append(block)
+        for auditorie, blocks in self.auditories.items():
+            for i in range(len(blocks)):
+                for j in range(len(blocks)):
+                    if i != j and blocks[i].IsSameTime(blocks[j]):
+                        blocks[i].overlapWith.append(blocks[j].id)
+        """for auditorie, blocks in self.auditories.items():
+            blocks.sort()
+        pass"""
         
     def ReturnArrayByAuditory(self):
         self.CalcArrayByAudirory()
@@ -121,15 +174,12 @@ class CalenderDay():
         array = [["" for _ in range(cols)] for _ in range(rows)]
 
         for i in range(len(array)):
-            auditory, time = list(self.auditories.items())[i]
+            auditory, blocks = list(self.auditories.items())[i]
             array[i][0] = auditory
             j = 1
-            for v in time:
-                n = v[1].number
-                array[i][n] = v[1]
-                #if self.auditoriesWarning[auditory]
-                if self.auditoriesWarning.get(auditory):
-                    array[i][n].markedOverlap = True
+            for block in blocks:
+                n = block.para.number
+                array[i][n] = block
                 j += 1
         return array
            

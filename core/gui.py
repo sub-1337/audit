@@ -69,15 +69,24 @@ class GUI_day(QWidget):
         self.table.setRowCount(rowCount)    # 3 rows
         self.table.setColumnCount(columnCoun) # 3 columns
         self.table.setHorizontalHeaderLabels(['Аудитория', 'Пара 1', 'Пара 2', 'Пара 3', 'Пара 4', 'Пара 5', 'Пара 6'])
-
+        def GetCell(block : dm.CalenderBlock):
+            return f"{block.professor}\n{block.subject}\n{block.group}"
         for row_i in range(rowCount):
             for col_j in range(columnCoun):
-                cell = QTableWidgetItem(str(auditorArr[row_i][col_j]))
-                if isinstance(auditorArr[row_i][col_j], dm.Para) and  auditorArr[row_i][col_j].markedOverlap:
-                    cell.setForeground(QColor('red'))
+                cell = None
+                if isinstance(auditorArr[row_i][col_j], dm.CalenderBlock):
+                    cell = QTableWidgetItem(GetCell(auditorArr[row_i][col_j]))
+                else:
+                    cell = QTableWidgetItem(str(auditorArr[row_i][col_j]))
+                if isinstance(auditorArr[row_i][col_j], dm.CalenderBlock):
+                    if len(auditorArr[row_i][col_j].overlapWith) > 0:
+                        cell.setForeground(QColor('red'))
+                cell.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) 
                 self.table.setItem(row_i, col_j, cell)
-
-
+                
+        
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
         """i = 0
         for auditorie, times in auditories.items():
             self.table.setItem(i, 0, QTableWidgetItem(str(auditorie)))

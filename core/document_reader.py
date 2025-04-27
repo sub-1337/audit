@@ -162,11 +162,11 @@ class DocumentReader():
         # DEBUG
         calenderDay = dm.CalenderDay(dm.date(2025, 9, 25))
 
-        calenderDay.addBlock(dm.CalenderBlock(dt.time(10, 0), dm.Para(1), dm.Auditory("5442")))
-        calenderDay.addBlock(dm.CalenderBlock(dt.time(10, 0), dm.Para(1), dm.Auditory("5442")))
-        calenderDay.addBlock(dm.CalenderBlock(dt.time(12, 0), dm.Para(3), dm.Auditory("1442")))
-        calenderDay.addBlock(dm.CalenderBlock(dt.time(11, 0), dm.Para(2),dm.Auditory("1442")))
-        calenderDay.addBlock(dm.CalenderBlock(dt.time(14, 0), dm.Para(5), dm.Auditory("3442")))
+        calenderDay.addBlock(dm.CalenderBlock(dm.Id(1), dt.time(10, 0), dm.Para(1), dm.Auditory("5442"), dm.Subject("Math"), dm.Professor("Big Smoke"), dm.Group("a1")))
+        calenderDay.addBlock(dm.CalenderBlock(dm.Id(2), dt.time(10, 0), dm.Para(1), dm.Auditory("5442"), dm.Subject("Music"), dm.Professor("Big Smoke"), dm.Group("a1")))
+        calenderDay.addBlock(dm.CalenderBlock(dm.Id(3), dt.time(12, 0), dm.Para(3), dm.Auditory("1442"), dm.Subject("Prog"), dm.Professor("Small di"), dm.Group("a1")))
+        calenderDay.addBlock(dm.CalenderBlock(dm.Id(4), dt.time(11, 0), dm.Para(2), dm.Auditory("1442"), dm.Subject("Russian"), dm.Professor("Lol Kek"), dm.Group("a1")))
+        calenderDay.addBlock(dm.CalenderBlock(dm.Id(5), dt.time(14, 0), dm.Para(5), dm.Auditory("3442"), dm.Subject("English"), dm.Professor("Abu Hui"), dm.Group("a1")))
 
         self.dataYear.addDay(calenderDay)
 

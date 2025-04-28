@@ -87,7 +87,7 @@ class Id():
     def __eq__(self, other):
         return isinstance(other, Id) and self.idNumber == other.idNumber
     def __str__(self):
-        return f"Id {self.idNumber}"
+        return f"{self.idNumber}"
     def __repr__(self):
         return str(self)
 
@@ -107,18 +107,36 @@ class RuleEven(Enum):
     # Определённые недели
     CUSTOM = 3
 
+class DayOfWeek(Enum):
+    MONDAY = 0
+    TUESDAY = 1
+    WEDNESDAY = 2
+    THURSDAY = 3
+    FRIDAY = 4
+    SATURDAY = 5
+    SUNDAY = 6
+
+
 class Rule():
-    def __init__(self, auditory : Auditory, even : RuleEven = RuleEven.DEFAULT, week = [], subgroup : RuleSubgroup = RuleSubgroup.DEFAULT):
+    def __init__(self, auditory : Auditory, dayOfWeek : DayOfWeek, para : Para, even : RuleEven = RuleEven.DEFAULT, week = [],  subgroup : RuleSubgroup = RuleSubgroup.DEFAULT, id : Id = None):
         self.auditory = auditory
         self.even = even
         self.week = week
         self.subgroup = subgroup
-        
-        
-        
-class CalenderRules():
+        self.dayOfWeek = dayOfWeek   
+        self.para = para
+        self.id = id
+    def __str__(self):
+        return f"Id {self.id}, auditory {self.auditory}, even {self.even}, week {self.week}, subgroup {self.subgroup.name}, dayOfWeek {self.dayOfWeek.name}, para {self.para}"
+    def __repr__(self):
+        return str(self)
+
+class Rules():
     def __init__(self):
-        pass
+        self.rules = []
+    def addRule(self, rule : Rule):
+        self.rules.append(rule)
+
 
 class CalenderBlock():
     def __init__(self, id : Id, time, para : Para, auditory : Auditory, subject : Subject, professor : Professor, group : Group):

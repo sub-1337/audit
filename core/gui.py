@@ -33,85 +33,87 @@ def GUI_calender_window_show(calenderData : CalenderData):
     app.exec()     
 """
 
+class GUI_rule(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Правило')
+        self.setGeometry(100, 100, 800, 600)  # x, y, width, height
+
+class GUI_rules(QWidget):
+    def __init__(self, rules : dm.Rules):
+        super().__init__()
+        self.setWindowTitle('Правила расписания')
+        self.setGeometry(100, 100, 800, 600)  # x, y, width, height
+
+        rowCount = len(rules.rules)
+        columnCoun = 1
+
+        self.table = QTableWidget()
+        self.table.setRowCount(rowCount)
+        self.table.setColumnCount(columnCoun)
+        for i in range(len(rules.rules)):
+            cell = QTableWidgetItem(str(rules.rules[i]))
+            self.table.setItem(0, i, cell)
+        
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+        layout = QVBoxLayout()
+        layout.addWidget(self.table)
+        self.setLayout(layout)
+
 class GUI_day(QWidget):
     def __init__(self, calender : dm.CalenderYear , year, month, day):
-        """super().__init__()
-        self.setWindowTitle("Просмотр дня")
-        self.resize(400, 200)
-        day = calender.getDay(year, month, day)
-
-        self.layout = QVBoxLayout()
-        self.table = QTableWidget()
-        self.table.setRowCount(10)  # Количество строк
-        self.table.setColumnCount(10)
-        for i in range(10):
-            for j in range(10):
-                self.table.setItem(i,j,QTableWidgetItem(f"{i},{j}"))
-        self.layout.addWidget(self.table)
-        
-        self.initUI()"""
         super().__init__()
         self.setWindowTitle('PyQt6 Table Example')
         self.setGeometry(100, 100, 800, 600)  # x, y, width, height
 
         day: dm.CalenderDay = calender.getDay(year, month, day)
-        day.CalcArrayByAudirory()
-        auditorArr = day.ReturnArrayByAuditory()
+        if day is None:
+            self.noData = True
         
-        rowCount = len(auditorArr)
-        columnCoun = 7
+        if not self.noData:
+            #day.CalcArrayByAudirory()
+            auditorArr = day.ReturnArrayByAuditory()
+            
+            rowCount = len(auditorArr)
+            columnCoun = 7
 
-        assert(len(auditorArr[0]) == columnCoun)
+            assert(len(auditorArr[0]) == columnCoun)
 
-        # Create a table
+            # Create a table
 
-        self.table = QTableWidget()
-        self.table.setRowCount(rowCount)    # 3 rows
-        self.table.setColumnCount(columnCoun) # 3 columns
-        self.table.setHorizontalHeaderLabels(['Аудитория', 'Пара 1', 'Пара 2', 'Пара 3', 'Пара 4', 'Пара 5', 'Пара 6'])
-        def GetCell(block : dm.CalenderBlock):
-            return f"{block.professor}\n{block.subject}\n{block.group}"
-        for row_i in range(rowCount):
-            for col_j in range(columnCoun):
-                cell = None
-                if isinstance(auditorArr[row_i][col_j], dm.CalenderBlock):
-                    cell = QTableWidgetItem(GetCell(auditorArr[row_i][col_j]))
-                else:
-                    cell = QTableWidgetItem(str(auditorArr[row_i][col_j]))
-                if isinstance(auditorArr[row_i][col_j], dm.CalenderBlock):
-                    if len(auditorArr[row_i][col_j].overlapWith) > 0:
-                        cell.setForeground(QColor('red'))
-                cell.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) 
-                self.table.setItem(row_i, col_j, cell)
-                
-        
-        self.table.resizeColumnsToContents()
-        self.table.resizeRowsToContents()
-        """i = 0
-        for auditorie, times in auditories.items():
-            self.table.setItem(i, 0, QTableWidgetItem(str(auditorie)))
-            i += 1
-
-        # Add some example data
-        i = 0
-        j = 1
-        for auditorie, times in auditories.items():
-            for time in times:                
-                if (j < 3):
-                    self.table.setItem(i, j, QTableWidgetItem(str(time)))
-                j += 1
-            i += 1
-            j = 1
-    """
-
-
-        # Set layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.table)
-        self.setLayout(layout)
+            self.table = QTableWidget()
+            self.table.setRowCount(rowCount)    # 3 rows
+            self.table.setColumnCount(columnCoun) # 3 columns
+            self.table.setHorizontalHeaderLabels(['Аудитория', 'Пара 1', 'Пара 2', 'Пара 3', 'Пара 4', 'Пара 5', 'Пара 6'])
+            def GetCell(block : dm.CalenderBlock):
+                return f"{block.professor}\n{block.subject}\n{block.group}"
+            for row_i in range(rowCount):
+                for col_j in range(columnCoun):
+                    cell = None
+                    if isinstance(auditorArr[row_i][col_j], dm.CalenderBlock):
+                        cell = QTableWidgetItem(GetCell(auditorArr[row_i][col_j]))
+                    else:
+                        cell = QTableWidgetItem(str(auditorArr[row_i][col_j]))
+                    if isinstance(auditorArr[row_i][col_j], dm.CalenderBlock):
+                        if len(auditorArr[row_i][col_j].overlapWith) > 0:
+                            cell.setForeground(QColor('red'))
+                    cell.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) 
+                    self.table.setItem(row_i, col_j, cell)                    
+            
+            self.table.resizeColumnsToContents()
+            self.table.resizeRowsToContents()
+            # Set layout
+            layout = QVBoxLayout()
+            layout.addWidget(self.table)
+            self.setLayout(layout)
+        else:
+            self.noDataText = QLabel("Нет данных за этот период")
+            self.layout = QVBoxLayout()
+            self.layout.addWidget(self.noDataText)
+            self.setLayout(self.layout)
     def initUI(self):
         pass
-
 
 class GUI_calendar(QWidget):
     def __init__(self, dataCalender : dm.CalenderYear, parent):
@@ -257,9 +259,11 @@ class GUI_main_window(QWidget):
         self.calender.show()
     def show_document(self):     
         #self.readDoc()
-        self.run_menue = GUI_input(self.document.data, self)
-        self.hide()
+        self.run_menue = GUI_input(self.document.data)
         self.run_menue.show()
+        #self.hide()
+        self.rulesMenue = GUI_rules(self.document.getRules())
+        self.rulesMenue.show()
     def readDoc(self):
         path = self.path_text.text()
         if not path:
@@ -268,9 +272,9 @@ class GUI_main_window(QWidget):
 
 # Получает данные и родительское окно (чтобы восстановить его после закрытия текущего)
 class GUI_input(QWidget):
-    def __init__(self, inputData : InputData, parent : QWidget):
+    def __init__(self, inputData : InputData):
         super().__init__()
-        self.parent = parent
+        #self.parent = parent
         self.setWindowTitle("Отладочный вывод парсинга")
         self.resize(600, 400)
 
@@ -294,6 +298,6 @@ class GUI_input(QWidget):
         layout.addWidget(self.table)
         self.setLayout(layout)
     def closeEvent(self, event):
-        if self.parent:
-            self.parent.show()
+        #if self.parent:
+        #    self.parent.show()
         event.accept()

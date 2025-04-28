@@ -128,6 +128,7 @@ class DocumentReader():
         super().__init__()
         self.data = InputData()
         self.dataYear = dm.CalenderYear()
+        self.rules = dm.Rules()
         path = docPath
         self.data.rowMax = 100
         self.data.colMax = 25
@@ -156,11 +157,12 @@ class DocumentReader():
 
         self.filterSpaces()
 
-        self.parseYear()
-
-    def parseYear(self): 
+        self.parseRules()
+    def getRules(self):
+        return self.rules
+    def parseRules(self): 
         # DEBUG
-        calenderDay = dm.CalenderDay(dm.date(2025, 9, 25))
+        """calenderDay = dm.CalenderDay(dm.date(2025, 9, 25))
 
         calenderDay.addBlock(dm.CalenderBlock(dm.Id(1), dt.time(10, 0), dm.Para(1), dm.Auditory("5442"), dm.Subject("Math"), dm.Professor("Big Smoke"), dm.Group("a1")))
         calenderDay.addBlock(dm.CalenderBlock(dm.Id(2), dt.time(10, 0), dm.Para(1), dm.Auditory("5442"), dm.Subject("Music"), dm.Professor("Big Smoke"), dm.Group("a1")))
@@ -168,8 +170,9 @@ class DocumentReader():
         calenderDay.addBlock(dm.CalenderBlock(dm.Id(4), dt.time(11, 0), dm.Para(2), dm.Auditory("1442"), dm.Subject("Russian"), dm.Professor("Lol Kek"), dm.Group("a1")))
         calenderDay.addBlock(dm.CalenderBlock(dm.Id(5), dt.time(14, 0), dm.Para(5), dm.Auditory("3442"), dm.Subject("English"), dm.Professor("Abu Hui"), dm.Group("a1")))
 
-        self.dataYear.addDay(calenderDay)
+        self.dataYear.addDay(calenderDay)"""
 
+        self.rules.addRule(dm.Rule(dm.Auditory("5442"), dm.DayOfWeek.MONDAY, dm.Para(1), dm.RuleEven.DEFAULT, None, dm.RuleSubgroup.DEFAULT, dm.Id(1)))
     def GetDataYear(self, year, month, day):
         return self.dataYear
     

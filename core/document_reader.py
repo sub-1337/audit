@@ -257,6 +257,8 @@ class DocumentReader():
     def parseCell(self, cell):
         if not cell:
             return None
+        
+        confidence = 100
 
         auditory = None
         even = dm.RuleEven.DEFAULT
@@ -265,11 +267,28 @@ class DocumentReader():
 
         if 'чн.' in cell:
             even = dm.RuleEven.EVEN
-        #if ''
-
+            if 'нч.' in cell:
+                confidence -= 20
+            
+        if 'нч.' in cell:
+            even = dm.RuleEven.ODD
+            if 'чн.' in cell:
+                confidence -= 20
         
+        patternAud = r'(а\.\s*\d*)(?:\s+(\d+))?'
+        matches = re.findall(patternAud, cell)
+        if len(matches) != 1:
+            confidence -= 20
+        else:
+            auditoryText = matches[0][0] + matches[0][1]
 
-        return {'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup}
+            patternAudNumber = r'(\d+)\s*$'  
+            matches = re.findall(patternAudNumber, auditoryText)
+
+            if len(auditoryText) != 4:
+                confidence -= 20
+
+        return {'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence}
 
     def parseData(self):
         # self.leftColumnData

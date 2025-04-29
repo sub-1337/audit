@@ -245,7 +245,7 @@ class DocumentReader():
                 cell = self.data.processed[i_row][j_col]
                 if cell:
                     if self.isGroup(cell):
-                        self.topRowData.append({'group' : dm.Group(cell), 'cols' : j_col})
+                        self.topRowData.append({'group' : dm.Group(cell), 'col' : j_col})
 
             if j_col + 1 < self.data.colMax:
                 j_col += 1
@@ -253,12 +253,46 @@ class DocumentReader():
                 readed = True
 
         #self.rules.addRule(dm.Rule(dm.Auditory("5442"), dm.DayOfWeek.MONDAY, dm.Para(1), dm.RuleEven.DEFAULT, None, dm.RuleSubgroup.DEFAULT, dm.Id(1)))
+    
+    def parseCell(self, cell):
+        if not cell:
+            return None
+
+        auditory = None
+        even = dm.RuleEven.DEFAULT
+        week = []
+        subgroup = dm.RuleSubgroup.DEFAULT
+
+        if 'чн.' in cell:
+            even = dm.RuleEven.EVEN
+        #if ''
+
+        
+
+        return {'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup}
 
     def parseData(self):
         # self.leftColumnData
         # self.topRowData
+        idNum = 1
         for left in self.leftColumnData:
             for top in self.topRowData:
+                weekday = left['weekday']
+                para = left['para']
+                rows = left['rows']
+                
+                group = top['group']
+                col = top['col']
+
+                res1 = self.parseCell(self.data.processed[rows[0]][col])
+                res2 = self.parseCell(self.data.processed[rows[1]][col])
+
+                if res1:
+                    self.rules.addRule(dm.Rule(res1['auditory'], weekday, para, res1['even'], res1['week'], res1['subgroup']))
+                    idNum += 1
+                if res2:
+                    self.rules.addRule(dm.Rule(res2['auditory'], weekday, para, res2['even'], res2['week'], res2['subgroup']))
+                    idNum += 1
                 pass
 
     def GetDataYear(self, year, month, day):

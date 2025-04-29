@@ -135,7 +135,8 @@ class Rules():
     def __init__(self):
         self.rules = []
     def addRule(self, rule : Rule):
-        self.rules.append(rule)
+        if not rule in self.rules:
+            self.rules.append(rule)
 
 
 class CalenderBlock():

@@ -157,10 +157,51 @@ class DocumentReader():
 
         self.filterSpaces()
 
-        self.parseRules()
+        self.parseBorders()
+
+        self.parseData()
     def getRules(self):
         return self.rules
-    def parseRules(self): 
+    def isWeekDayName(self, cell):
+        if cell == 'п о н е д е л ь н и к':
+            return dm.DayOfWeek.MONDAY
+        elif cell == 'в т о р н и к':
+            return dm.DayOfWeek.TUESDAY
+        elif cell == 'с р е д а':
+            return dm.DayOfWeek.WEDNESDAY
+        elif cell == 'ч е т в е р г':
+            return dm.DayOfWeek.THURSDAY
+        elif cell == 'п я т н и ц а':
+            return dm.DayOfWeek.FRIDAY
+        elif cell == 'с у б б о т а':
+            return dm.DayOfWeek.SATURDAY
+        else:
+            return None
+    def isPara(self, cell):
+        if 'пара' in cell:
+            number = cell[0]
+            number = int(number)
+            return dm.Para(number)
+        else:
+            return None
+    def isTime(self, cell):
+        pattern = r'\d{1,2}\.\d{2}/\d{1,2}\.\d{2}'
+        match = re.search(pattern, cell)
+        if match:
+            splitted = cell.split('/')
+            for curr in splitted:
+                s = curr.split('.')
+                return dt.time(int(s[0]),int(s[1]))
+        else:
+            return None
+    def isGroup(self, cell):
+        pattern = r'(.+?)\s+(\d{2})\s*$'
+        matches = re.findall(pattern, cell)
+        if matches:
+            return True
+        else:
+            return False 
+    def parseBorders(self): 
         # DEBUG
         """calenderDay = dm.CalenderDay(dm.date(2025, 9, 25))
 
@@ -172,7 +213,54 @@ class DocumentReader():
 
         self.dataYear.addDay(calenderDay)"""
 
-        self.rules.addRule(dm.Rule(dm.Auditory("5442"), dm.DayOfWeek.MONDAY, dm.Para(1), dm.RuleEven.DEFAULT, None, dm.RuleSubgroup.DEFAULT, dm.Id(1)))
+        # Пройтись по левой колонке где день и пара/время
+        i_row = 0
+        readed = False
+        self.leftColumnData = []
+        while not readed:
+            #rowsCurrent, colsCurrent = 4, 50
+            #currentRow = [[0 for _ in range(colsCurrent)] for _ in range(rowsCurrent)]
+            for j_col in range(5):
+                cell = self.data.processed[i_row][j_col]
+                weekday = self.isWeekDayName(cell)
+                if weekday:
+                    cellRightNear = self.data.processed[i_row][j_col + 1]
+                    para = self.isPara(cellRightNear)
+                    if para:
+                        cellRightBottomNear = self.data.processed[i_row + 1][j_col + 1]
+                        if self.isTime(cellRightBottomNear):
+                            # Сдесь мы в левой верхней границе
+                            self.leftColumnData.append({'weekday' : weekday, 'para' : para, 'rows' : (i_row, i_row + 1,)})
+            if i_row + 1 < self.data.rowMax:
+                i_row += 1
+            else:
+                readed = True
+
+        # Пройтись по верху где группа
+        j_col = 0
+        readed = False
+        self.topRowData = []
+        while not readed:
+            for i_row in range(30):
+                cell = self.data.processed[i_row][j_col]
+                if cell:
+                    if self.isGroup(cell):
+                        self.topRowData.append({'group' : dm.Group(cell), 'cols' : j_col})
+
+            if j_col + 1 < self.data.colMax:
+                j_col += 1
+            else:
+                readed = True
+
+        #self.rules.addRule(dm.Rule(dm.Auditory("5442"), dm.DayOfWeek.MONDAY, dm.Para(1), dm.RuleEven.DEFAULT, None, dm.RuleSubgroup.DEFAULT, dm.Id(1)))
+
+    def parseData(self):
+        # self.leftColumnData
+        # self.topRowData
+        for left in self.leftColumnData:
+            for top in self.topRowData:
+                pass
+
     def GetDataYear(self, year, month, day):
         return self.dataYear
     

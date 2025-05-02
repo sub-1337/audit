@@ -253,11 +253,14 @@ class DocumentReader():
                 readed = True
 
         #self.rules.addRule(dm.Rule(dm.Auditory("5442"), dm.DayOfWeek.MONDAY, dm.Para(1), dm.RuleEven.DEFAULT, None, dm.RuleSubgroup.DEFAULT, dm.Id(1)))
-    
-    def parseCell(self, cell):
+    @staticmethod
+    def parseCell(cell):
         if not cell:
             return None
         
+        cloneResult  = {'auditory' : None, 'even' : None, 'week' : None, 'subgroup' : None, 'confidence' : None}
+        result = []
+
         confidence = 100
 
         auditory = None
@@ -280,15 +283,41 @@ class DocumentReader():
         if len(matches) != 1:
             confidence -= 20
         else:
-            auditoryText = matches[0][0] + matches[0][1]
+            auditoryTextWithTrash = matches[0][0] + matches[0][1]
 
             patternAudNumber = r'(\d+)\s*$'  
-            matches = re.findall(patternAudNumber, auditoryText)
+            matches = re.findall(patternAudNumber, auditoryTextWithTrash)
+
+            auditoryText = "1000"
+            if len(matches) == 1:
+                auditoryText = matches[0]
+            else:
+                confidence -= 20
 
             if len(auditoryText) != 4:
                 confidence -= 20
+            
+            auditory = dm.Auditory(int(auditoryText))
 
-        return {'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence}
+        countOfSubgroup = 0
+        countOfSubgroup += cell.count('подгр')
+        countOfSubgroup += cell.count('п/гр')
+        subgroupRegexp = r"(\d)\s*(?:п/гр\.|подгр)\s*-?\s*([\d,]+)"
+        matchesSubGroup = re.findall(subgroupRegexp, cell)
+        
+        
+        result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence})
+        if len(matchesSubGroup) > 1:
+            for match in matchesSubGroup:
+                result.append(result[0].copy())
+                result[-1]['subgroup'] = match[0]
+                result[-1]['week'] = match[1]
+        if len(result) > 1:
+            del result[0]
+        if countOfSubgroup == 1:
+            pass
+
+        return result
 
     def parseData(self):
         # self.leftColumnData

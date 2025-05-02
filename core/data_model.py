@@ -130,13 +130,24 @@ class Rule():
         return f"Id {self.id}, auditory {self.auditory}, even {self.even}, week {self.week}, subgroup {self.subgroup.name}, dayOfWeek {self.dayOfWeek.name}, para {self.para}"
     def __repr__(self):
         return str(self)
+    def __eq__(self, other):
+        if isinstance(other, Rule):
+            return \
+            self.auditory == other.auditory and \
+            self.even == other.even and \
+            self.week == other.week and \
+            self.subgroup == other.subgroup and \
+            self.dayOfWeek == other.dayOfWeek and \
+            self.para == other.para and \
+            self.id == other.id
 
 class Rules():
     def __init__(self):
         self.rules = []
     def addRule(self, rule : Rule):
-        if not rule in self.rules:
-            self.rules.append(rule)
+        if rule:
+            if not rule in self.rules:
+                self.rules.append(rule)
 
 
 class CalenderBlock():

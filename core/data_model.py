@@ -118,16 +118,19 @@ class DayOfWeek(Enum):
 
 
 class Rule():
-    def __init__(self, auditory : Auditory, dayOfWeek : DayOfWeek, para : Para, even : RuleEven = RuleEven.DEFAULT, week = [],  subgroup : RuleSubgroup = RuleSubgroup.DEFAULT, id : Id = None):
+    def __init__(self, auditory : Auditory, dayOfWeek : DayOfWeek, para : Para, even : RuleEven = RuleEven.DEFAULT, week = [],\
+                subgroup : RuleSubgroup = RuleSubgroup.DEFAULT, comment : str = "", originalText : str = "", id : Id = None):
         self.auditory = auditory
         self.even = even
         self.week = week
         self.subgroup = subgroup
         self.dayOfWeek = dayOfWeek   
         self.para = para
+        self.comment = comment
+        self.originalText = originalText
         self.id = id
     def __str__(self):
-        return f"Id {self.id}, auditory {self.auditory}, even {self.even}, week {self.week}, subgroup {self.subgroup.name}, dayOfWeek {self.dayOfWeek.name}, para {self.para}"
+        return f"Id {self.id}, auditory {self.auditory}, even {self.even}, week {self.week}, subgroup {self.subgroup.name}, dayOfWeek {self.dayOfWeek.name}, para {self.para}, comment {self.comment}"
     def __repr__(self):
         return str(self)
     def __eq__(self, other):

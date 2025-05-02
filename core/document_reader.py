@@ -278,8 +278,12 @@ class DocumentReader():
             if 'чн.' in cell:
                 confidence -= 20
         
+        comment = cell.replace('чн.','')
+        comment = comment.replace('нч.','')
+
         patternAud = r'(а\.\s*\d*)(?:\s+(\d+))?'
         matches = re.findall(patternAud, cell)
+        comment = re.sub(patternAud, "", comment)
         if len(matches) != 1:
             confidence -= 20
         else:
@@ -302,21 +306,33 @@ class DocumentReader():
         countOfSubgroup = 0
         countOfSubgroup += cell.count('подгр')
         countOfSubgroup += cell.count('п/гр')
-        subgroupRegexp = r"(\d)\s*(?:п/гр\.|подгр)\s*-?\s*([\d,]+)"
-        matchesSubGroup = re.findall(subgroupRegexp, cell)
         
         
-        result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence})
-        if len(matchesSubGroup) > 1:
-            for match in matchesSubGroup:
-                result.append(result[0].copy())
-                result[-1]['subgroup'] = match[0]
-                result[-1]['week'] = match[1]
-        if len(result) > 1:
-            del result[0]
-        if countOfSubgroup == 1:
-            pass
-
+        if countOfSubgroup > 1:
+            subgroupRegexp = r"(\d)\s*(?:п/гр\.|подгр)\s*-?\s*([\d,]+)"
+            matchesSubGroup = re.findall(subgroupRegexp, cell)
+            comment = re.sub(subgroupRegexp, "", comment)
+            
+            comment = comment.replace('нед', '')
+            comment = re.sub(r"\s+", " ", comment).strip()
+            
+            if len(matchesSubGroup) > 1:
+                result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
+                for match in matchesSubGroup:
+                    result.append(result[0].copy())
+                    result[-1]['subgroup'] = dm.RuleSubgroup(int(match[0]))
+                    result[-1]['week'] = [int(x) for x in match[1].split(',')]
+                del result[0]
+            else:
+                result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
+        else:
+            subgroupRegexp = r'(\d+)\s*(?=п/гр\.|подгр)'
+            subgroupMatch = re.findall(subgroupRegexp, cell)
+            if len(subgroupMatch) > 0:
+                subgroup = dm.RuleSubgroup(int(subgroupMatch[0]))
+            else:
+                subgroup = dm.RuleSubgroup.DEFAULT
+            result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
         return result
 
     def parseData(self):
@@ -335,13 +351,16 @@ class DocumentReader():
                 res1 = self.parseCell(self.data.processed[rows[0]][col])
                 res2 = self.parseCell(self.data.processed[rows[1]][col])
 
+                resTotal = []
                 if res1:
-                    self.rules.addRule(dm.Rule(res1['auditory'], weekday, para, res1['even'], res1['week'], res1['subgroup']))
-                    idNum += 1
+                    resTotal += res1
                 if res2:
-                    self.rules.addRule(dm.Rule(res2['auditory'], weekday, para, res2['even'], res2['week'], res2['subgroup']))
-                    idNum += 1
-                pass
+                    resTotal += res2
+
+                for rule in resTotal:
+                    if rule:
+                        self.rules.addRule(dm.Rule(rule['auditory'], weekday, para,  rule['even'], rule['week'], rule['subgroup'], rule['comment']))
+        pass
 
     def GetDataYear(self, year, month, day):
         return self.dataYear

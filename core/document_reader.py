@@ -359,7 +359,8 @@ class DocumentReader():
 
                 for rule in resTotal:
                     if rule:
-                        self.rules.addRule(dm.Rule(rule['auditory'], weekday, para,  rule['even'], rule['week'], rule['subgroup'], rule['comment']))
+                        self.rules.addRule(dm.Rule(rule['auditory'], weekday, para,  rule['even'],\
+                                                   rule['week'], rule['subgroup'], rule['comment'], rule['confidence']))
         pass
 
     def GetDataYear(self, year, month, day):

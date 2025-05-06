@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox
+from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel, QCalendarWidget
+from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox, QComboBox
 from PyQt6.QtGui import QColor
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QDate
 from core.data_model import InputData
 import core.data_model as dm
 #from core.control import ReadDocument
@@ -214,6 +214,12 @@ class GUI_main_window(QWidget):
         self.setWindowTitle("Утилита audit")
         self.resize(400, 200)
     
+        self.calendar = QCalendarWidget(self)
+        self.label_calender = QLabel("Выберите дату начала занятий", self)
+
+        self.comboSheet = QComboBox()
+        self.comboSheet.currentIndexChanged.connect(self.comboSheetChanged)
+
         self.path_text = QLineEdit(self)
         self.path_text.setPlaceholderText("Path")
         
@@ -233,9 +239,17 @@ class GUI_main_window(QWidget):
         self.layout_file_path = QHBoxLayout()
         self.layout_file_path.addWidget(self.path_text)
         self.layout_file_path.addWidget(self.button_choose)
+        self.layout_file_path.addWidget(self.comboSheet)
+        
+        self.layout_date = QVBoxLayout()        
+        self.layout_date.addWidget(self.label_calender)
+        self.layout_date.addWidget(self.calendar)
+
+        self.calendar.clicked.connect(self.dateSelected)
 
         self.layout_all = QVBoxLayout()
         self.layout_all.addLayout(self.layout_file_path)
+        self.layout_all.addLayout(self.layout_date)
 
         self.layout_all_centered = QHBoxLayout()
         self.layout_all_centered.addWidget(self.button_run)
@@ -247,28 +261,37 @@ class GUI_main_window(QWidget):
         self.setLayout(self.layout_all)
 
         self.document = None
-
+    def comboSheetChanged(self, var):
+        self.document.worbookNamesCurrent = self.comboSheet.currentText()
+        self.readDoc()
+    def dateSelected(self, date : QDate):
+        self.dateOfStart = {'year' : date.year(), 'month' : date.month(), 'day' : date.day()}
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
-        self.readDoc()
+        self.readHeadOfDoc()
+
+        self.comboSheet.clear()
+        if self.document.worbookNames:
+            self.comboSheet.addItems(self.document.worbookNames)
+
         self.button_run.setDisabled(False)
         self.button_show_doc.setDisabled(False)
     def open_file(self):       
         self.calender = GUI_calendar(self.document.dataYear, self)
         self.calender.show()
-    def show_document(self):     
-        #self.readDoc()
+    def show_document(self):
         self.run_menue = GUI_input(self.document.data)
         self.run_menue.show()
-        #self.hide()
         self.rulesMenue = GUI_rules(self.document.getRules())
         self.rulesMenue.show()
-    def readDoc(self):
+    def readHeadOfDoc(self):
         path = self.path_text.text()
         if not path:
             return
         self.document = DocumentReader(path)
+    def readDoc(self):
+        self.document.readDoc()
 
 # Получает данные и родительское окно (чтобы восстановить его после закрытия текущего)
 class GUI_input(QWidget):

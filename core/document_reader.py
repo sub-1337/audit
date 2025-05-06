@@ -120,34 +120,15 @@ class DocumentReader():
         for i_row in range(1,self.data.rowMax):
             for i_col in range(1, self.data.colMax):
                 blockStr = self.data.processed[i_row][i_col]
-                if not blockStr:
+                if (not blockStr) or isinstance(blockStr, int):
                     blockStr = ""
                 self.data.processed[i_row][i_col] = " ".join(blockStr.split())
 
-    def __init__(self, docPath):
-        super().__init__()
-        self.data = InputData()
-        self.dataYear = dm.CalenderYear()
-        self.rules = dm.Rules()
-        path = docPath
-        self.data.rowMax = 100
-        self.data.colMax = 25
-        # To open the workbook 
-        # workbook object is created
-        wb_obj = openpyxl.load_workbook(path)
-
-        # Get workbook active sheet object
-        # from the active attribute
-        sheet_obj = wb_obj.active
-
-        #self.setWindowTitle("Пример QTableWidget")
-        #self.resize(600, 400)
-
-        # Создание таблицы
-        #self.table = QTableWidget()
-        #self.table.setRowCount(self.data.rowMax)  # Количество строк
-        #self.table.setColumnCount(self.colMax)  # Количество столбцов
-        #self.table.setHorizontalHeaderLabels(["Имя", "Возраст", "Город"])  # Заголовки столбцов
+    def readDoc(self):
+        if self.worbookNamesCurrent:
+            sheet_obj = self.wb_obj[self.worbookNamesCurrent]
+        else:
+            sheet_obj = self.wb_obj.active
         
         # Избавится от объеденённых ячеек
         self.data.processed = [ [0]*self.data.colMax for i in range(self.data.rowMax)]
@@ -160,20 +141,43 @@ class DocumentReader():
         self.parseBorders()
 
         self.parseData()
+    def readHead(self):        
+        self.wb_obj = openpyxl.load_workbook(self.docPath)
+        self.worbookNames = self.wb_obj.sheetnames
+    def __init__(self, docPath):
+        super().__init__()
+        self.data = InputData()
+        self.dataYear = dm.CalenderYear()
+        self.rules = dm.Rules()
+        
+        self.data.rowMax = 100
+        self.data.colMax = 25
+        self.docPath = docPath
+
+        self.worbookNamesCurrent = None
+        self.readHead()
+        # To open the workbook 
+        # workbook object is created
+        #wb_obj = openpyxl.load_workbook(path)
+
+        # Get workbook active sheet object
+        # from the active attribute
+        #sheet_obj = wb_obj.active        
+        
     def getRules(self):
         return self.rules
     def isWeekDayName(self, cell):
-        if cell == 'п о н е д е л ь н и к':
+        if cell == 'п о н е д е л ь н и к' or cell == 'П о н е д е л ь н и к' or cell == 'понедельник':
             return dm.DayOfWeek.MONDAY
-        elif cell == 'в т о р н и к':
+        elif cell == 'в т о р н и к' or cell == 'В т о р н и к' or cell == 'вторник':
             return dm.DayOfWeek.TUESDAY
-        elif cell == 'с р е д а':
+        elif cell == 'с р е д а' or cell == 'С р е д а' or cell == 'среда':
             return dm.DayOfWeek.WEDNESDAY
-        elif cell == 'ч е т в е р г':
+        elif cell == 'ч е т в е р г' or cell == 'Ч е т в е р г' or cell == 'четверг':
             return dm.DayOfWeek.THURSDAY
-        elif cell == 'п я т н и ц а':
+        elif cell == 'п я т н и ц а' or cell == 'П я т н и ц а' or cell == 'пятница':
             return dm.DayOfWeek.FRIDAY
-        elif cell == 'с у б б о т а':
+        elif cell == 'с у б б о т а' or cell == 'С у б б о т а' or cell == 'суббота':
             return dm.DayOfWeek.SATURDAY
         else:
             return None
@@ -196,11 +200,15 @@ class DocumentReader():
             return None
     def isGroup(self, cell):
         pattern = r'(.+?)\s+(\d{2})\s*$'
+        pattern2 = r'^[С\s]*\d{1,2}[РРЭССКТР\s\-]*\s*\(\d+\)$'
         matches = re.findall(pattern, cell)
         if matches:
             return True
         else:
-            return False 
+            matches = re.findall(pattern2, cell)
+            if matches:
+                return True
+        return False 
     def parseBorders(self): 
         # DEBUG
         """calenderDay = dm.CalenderDay(dm.date(2025, 9, 25))
@@ -220,7 +228,7 @@ class DocumentReader():
         while not readed:
             #rowsCurrent, colsCurrent = 4, 50
             #currentRow = [[0 for _ in range(colsCurrent)] for _ in range(rowsCurrent)]
-            for j_col in range(5):
+            for j_col in range(15):
                 cell = self.data.processed[i_row][j_col]
                 weekday = self.isWeekDayName(cell)
                 if weekday:
@@ -321,7 +329,7 @@ class DocumentReader():
                 for match in matchesSubGroup:
                     result.append(result[0].copy())
                     result[-1]['subgroup'] = dm.RuleSubgroup(int(match[0]))
-                    result[-1]['week'] = [int(x) for x in match[1].split(',')]
+                    result[-1]['week'] = [int(x) if x != '' else 0 for x in match[1].split(',')]
                 del result[0]
             else:
                 result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
@@ -338,6 +346,7 @@ class DocumentReader():
     def parseData(self):
         # self.leftColumnData
         # self.topRowData
+        self.rules = dm.Rules()
         idNum = 1
         for left in self.leftColumnData:
             for top in self.topRowData:

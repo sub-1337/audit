@@ -124,12 +124,14 @@ class DocumentReader():
                     blockStr = ""
                 self.data.processed[i_row][i_col] = " ".join(blockStr.split())
 
-    def readDoc(self):
+    def readDoc(self, dayOfStartDic):
         if self.worbookNamesCurrent:
             sheet_obj = self.wb_obj[self.worbookNamesCurrent]
         else:
             sheet_obj = self.wb_obj.active
         
+        self.dayOfStartDic = dayOfStartDic
+
         # Избавится от объеденённых ячеек
         self.data.processed = [ [0]*self.data.colMax for i in range(self.data.rowMax)]
         self.unMergeCells(sheet_obj, self.data.processed)
@@ -141,6 +143,8 @@ class DocumentReader():
         self.parseBorders()
 
         self.parseData()
+
+        self.calcYear()
     def readHead(self):        
         self.wb_obj = openpyxl.load_workbook(self.docPath)
         self.worbookNames = self.wb_obj.sheetnames
@@ -149,7 +153,8 @@ class DocumentReader():
         self.data = InputData()
         self.dataYear = dm.CalenderYear()
         self.rules = dm.Rules()
-        
+        self.dayOfStartDic = None
+
         self.data.rowMax = 100
         self.data.colMax = 25
         self.docPath = docPath
@@ -289,13 +294,13 @@ class DocumentReader():
         comment = cell.replace('чн.','')
         comment = comment.replace('нч.','')
 
-        patternAud = r'(а\.\s*\d*)(?:\s+(\d+))?'
+        patternAud = r'[0-9]{4}'
         matches = re.findall(patternAud, cell)
         comment = re.sub(patternAud, "", comment)
         if len(matches) != 1:
             confidence -= 20
         else:
-            auditoryTextWithTrash = matches[0][0] + matches[0][1]
+            """auditoryTextWithTrash = matches[0][0] + matches[0][1]
 
             patternAudNumber = r'(\d+)\s*$'  
             matches = re.findall(patternAudNumber, auditoryTextWithTrash)
@@ -308,8 +313,8 @@ class DocumentReader():
 
             if len(auditoryText) != 4:
                 confidence -= 20
-            
-            auditory = dm.Auditory(int(auditoryText))
+            """
+            auditory = dm.Auditory(int(matches[0]))
 
         countOfSubgroup = 0
         countOfSubgroup += cell.count('подгр')
@@ -372,8 +377,47 @@ class DocumentReader():
                                                    rule['week'], rule['subgroup'], rule['comment'], rule['confidence']))
         pass
 
-    def GetDataYear(self, year, month, day):
-        return self.dataYear
-    
-    def GetDay(self, week, weekday):
+    """def GetDataYear(self, year, month, day):
+        return self.dataYear"""
+    def calcYear(self):
+        startDate = dt.datetime(self.dayOfStartDic['year'], self.dayOfStartDic['month'], self.dayOfStartDic['day'])
+        endDate = startDate + dt.timedelta(days = 30 * 7)
+        currentDate = startDate
+        weekStart = startDate.isocalendar().week
+        weekNumber = 0
+        weekDay = 0
+
+        while currentDate <= endDate:
+            weekNumber = currentDate.isocalendar().week - weekStart            
+            weekDay = currentDate.weekday()
+            print(currentDate.strftime("%Y-%m-%d") + ' ' + f"week: {weekNumber} weekday {weekDay}")            
+            
+            dayOfWeekEnum = dm.DayOfWeek(weekDay)
+            if weekDay % 2 == 0:
+                even = dm.RuleEven.EVEN
+            else:
+                even = dm.RuleEven.ODD
+
+            day = dm.CalenderDay(dt.date(currentDate.year, currentDate.month, currentDate.day))
+
+            for rule in self.rules.rules:
+                if rule.dayOfWeek == dayOfWeekEnum:
+                    if len(rule.week) == 0:
+                        if rule.even != dm.RuleEven.DEFAULT:
+                            if rule.even == even:
+                                block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)
+                                day.addBlock(block)
+                    else:
+                        if weekNumber in rule.week:
+                            block = block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)
+                            day.addBlock(block) 
+            self.dataYear.addDay(day)
+            currentDate += dt.timedelta(days=1)
+
+
+        # day = dm.CalenderDay(dt.date(2025,11,10))
+        # block = dm.CalenderBlock(None, dt.time(11,30), dm.Para(1), dm.Auditory(1000))
+        #day.addBlock(block)
+        #self.dataYear.addDay(day)
+    def GetDay(self, year, month, day):
         pass

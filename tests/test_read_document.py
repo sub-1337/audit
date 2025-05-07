@@ -3,6 +3,7 @@ import os
 
 def test():
     doc = DocumentReader(os.path.join("tests", "test_files", "test_reader.xlsx"))
+    doc.readDoc({'year' : 2025, 'month' : 10, 'day' : 11})
     day_name = 'в т о р н и к'
     assert doc.data.processed[1][2] == ''
     for i in range(2, 13 + 1):

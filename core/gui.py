@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel, QCalendarWidget
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox, QComboBox
+from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox, QComboBox, QMessageBox
 from PyQt6.QtGui import QColor
 from PyQt6.QtCore import Qt, QDate
 from core.data_model import InputData
@@ -62,14 +62,16 @@ class GUI_rules(QWidget):
         self.setLayout(layout)
 
 class GUI_day(QWidget):
-    def __init__(self, calender : dm.CalenderYear , year, month, day):
+    def __init__(self, calender : dm.CalenderYear, currentDay):
         super().__init__()
         self.setWindowTitle('PyQt6 Table Example')
         self.setGeometry(100, 100, 800, 600)  # x, y, width, height
 
-        day: dm.CalenderDay = calender.getDay(year, month, day)
+        day: dm.CalenderDay = calender.getDay(currentDay)
         if day is None:
             self.noData = True
+        else:
+            self.noData = False
         
         if not self.noData:
             #day.CalcArrayByAudirory()
@@ -77,7 +79,9 @@ class GUI_day(QWidget):
             
             rowCount = len(auditorArr)
             columnCoun = 7
-
+            if len(auditorArr) == 0:
+                self.setNoData()
+                return
             assert(len(auditorArr[0]) == columnCoun)
 
             # Create a table
@@ -87,7 +91,7 @@ class GUI_day(QWidget):
             self.table.setColumnCount(columnCoun) # 3 columns
             self.table.setHorizontalHeaderLabels(['Аудитория', 'Пара 1', 'Пара 2', 'Пара 3', 'Пара 4', 'Пара 5', 'Пара 6'])
             def GetCell(block : dm.CalenderBlock):
-                return f"{block.professor}\n{block.subject}\n{block.group}"
+                return f"{block.comment}\n{block.group}"
             for row_i in range(rowCount):
                 for col_j in range(columnCoun):
                     cell = None
@@ -108,21 +112,23 @@ class GUI_day(QWidget):
             layout.addWidget(self.table)
             self.setLayout(layout)
         else:
-            self.noDataText = QLabel("Нет данных за этот период")
-            self.layout = QVBoxLayout()
-            self.layout.addWidget(self.noDataText)
-            self.setLayout(self.layout)
+            self.setNoData()
+            
+    def setNoData(self):
+        self.noDataText = QLabel("Нет данных за этот период")
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.noDataText)
+        self.setLayout(self.layout)
     def initUI(self):
         pass
 
 class GUI_calendar(QWidget):
-    def __init__(self, dataCalender : dm.CalenderYear, parent):
+    def __init__(self, dataYear : dm.CalenderYear):
         super().__init__()
         self.setWindowTitle("Режим календаря")
         self.resize(400, 200)
-        self.parent = parent
         self.initUI()
-        self.dataCalender = dataCalender
+        self.dataYear = dataYear
 
     def initUI(self):
         self.layout = QVBoxLayout()
@@ -193,8 +199,8 @@ class GUI_calendar(QWidget):
     
     def click_day_button(self, day):
         year = self.year_input.value()
-        week = self.month_input.value()
-        self.day_widget = GUI_day(self.dataCalender, year, week, day)
+        month = self.month_input.value()
+        self.day_widget = GUI_day(self.dataYear, {'year' : year, 'month' : month , 'day' : day})
         self.day_widget.show()
 
     def get_date_from_week(self):
@@ -213,7 +219,9 @@ class GUI_main_window(QWidget):
         super().__init__()
         self.setWindowTitle("Утилита audit")
         self.resize(400, 200)
-    
+
+        self.dateOfStartDic = None
+
         self.calendar = QCalendarWidget(self)
         self.label_calender = QLabel("Выберите дату начала занятий", self)
 
@@ -263,9 +271,10 @@ class GUI_main_window(QWidget):
         self.document = None
     def comboSheetChanged(self, var):
         self.document.worbookNamesCurrent = self.comboSheet.currentText()
-        self.readDoc()
+        #self.readDoc()
     def dateSelected(self, date : QDate):
-        self.dateOfStart = {'year' : date.year(), 'month' : date.month(), 'day' : date.day()}
+        self.dateOfStartDic = {'year' : date.year(), 'month' : date.month(), 'day' : date.day()}
+        #self.readDoc()
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
@@ -277,10 +286,13 @@ class GUI_main_window(QWidget):
 
         self.button_run.setDisabled(False)
         self.button_show_doc.setDisabled(False)
-    def open_file(self):       
-        self.calender = GUI_calendar(self.document.dataYear, self)
-        self.calender.show()
+    def open_file(self):
+        if self.readDoc():
+            self.calender = GUI_calendar(self.document.dataYear)
+            self.calender.show()
     def show_document(self):
+        if self.readDoc() == False:
+            return
         self.run_menue = GUI_input(self.document.data)
         self.run_menue.show()
         self.rulesMenue = GUI_rules(self.document.getRules())
@@ -291,7 +303,18 @@ class GUI_main_window(QWidget):
             return
         self.document = DocumentReader(path)
     def readDoc(self):
-        self.document.readDoc()
+        if self.dateOfStartDic:
+            self.document.readDoc(self.dateOfStartDic)
+            return True
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setWindowTitle("Ошибка")
+            msg.setText("Установите дату начала")
+            msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            msg.exec()
+            return False
+
 
 # Получает данные и родительское окно (чтобы восстановить его после закрытия текущего)
 class GUI_input(QWidget):
@@ -307,12 +330,14 @@ class GUI_input(QWidget):
 
         for i_row in range(1,inputData.rowMax):
             for i_col in range(1, inputData.colMax):
+                #if i_row < len(inputData.processed) and i_col < len(inputData.processed[i_row]):
                 if inputData.processed[i_row][i_col]:
                     item = QTableWidgetItem(inputData.processed[i_row][i_col])
                 else:
                     item = QTableWidgetItem("")
                 self.table.setItem(i_row - 1, i_col - 1, item)
                 item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) 
+
         
         self.table.resizeColumnsToContents()
         self.table.resizeRowsToContents()

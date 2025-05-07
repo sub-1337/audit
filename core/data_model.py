@@ -105,7 +105,7 @@ class RuleEven(Enum):
     # Нечётное
     EVEN = 2
     # Определённые недели
-    CUSTOM = 3
+    # CUSTOM = 3
 
 class DayOfWeek(Enum):
     MONDAY = 0
@@ -155,14 +155,13 @@ class Rules():
 
 
 class CalenderBlock():
-    def __init__(self, id : Id, time, para : Para, auditory : Auditory, subject : Subject, professor : Professor, group : Group):
+    def __init__(self, id : Id, time, para : Para, auditory : Auditory = None, group : Group = None, comment : str = ''):
         self.id = id
         self.time = time
         self.para = para
         self.auditory = auditory
-        self.subject = subject
-        self.professor = professor
-        self.group = group
+        self.group = group        
+        self.comment = comment
         self.overlapWith = []
     def __str__(self):
         return f"calender block: id {self.id}, time {self.time}, para {self.para}, auditory {self.auditory}, subject {self.subject}, professor {self.professor}, group {self.group}"
@@ -217,16 +216,16 @@ class CalenderDay():
                 j += 1
         return array
            
-
-
-
 class CalenderYear():
     def __init__(self):
         self.allDays= []
+        self.rules = None
     def addDay(self, calenderDay : CalenderDay):        
         self.allDays.append(calenderDay)
-    def getDay(self, year, month, day):
+    """def addRules(self, rules : Rules):
+        self.rules = rules"""
+    def getDay(self, dayDictionary):
         for d in self.allDays:
-            if (d.date.year == year) and (d.date.month == month) and (d.date.day == day):
+            if (d.date.year == dayDictionary['year']) and (d.date.month == dayDictionary['month']) and (d.date.day == dayDictionary['day']):
                 return d
         return None

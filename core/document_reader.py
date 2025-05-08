@@ -390,7 +390,7 @@ class DocumentReader():
         while currentDate <= endDate:
             weekNumber = currentDate.isocalendar().week - weekStart            
             weekDay = currentDate.weekday()
-            print(currentDate.strftime("%Y-%m-%d") + ' ' + f"week: {weekNumber} weekday {weekDay}")            
+            #(currentDate.strftime("%Y-%m-%d") + ' ' + f"week: {weekNumber} weekday {weekDay}")            
             
             dayOfWeekEnum = dm.DayOfWeek(weekDay)
             if weekDay % 2 == 0:

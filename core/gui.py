@@ -64,7 +64,7 @@ class GUI_rules(QWidget):
 class GUI_day(QWidget):
     def __init__(self, calender : dm.CalenderYear, currentDay):
         super().__init__()
-        self.setWindowTitle('PyQt6 Table Example')
+        self.setWindowTitle('Расписание на день')
         self.setGeometry(100, 100, 800, 600)  # x, y, width, height
 
         day: dm.CalenderDay = calender.getDay(currentDay)

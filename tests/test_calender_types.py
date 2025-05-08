@@ -40,7 +40,19 @@ def rulesToDay():
     doc = dr.DocumentReader(os.path.join("tests", "test_files", "test_parser.xlsx"))
     doc.readHead()
     doc.worbookNamesCurrent = doc.worbookNames[0]
-    doc.readDoc({'year' : 2025, 'month' : 4, 'day' : 3})
+    doc.readDoc({'year' : 2025, 'month' : 1, 'day' : 1})
+
+    assert(len(doc.rules.rules) == 3)
+    assert(doc.rules.rules[0].auditory == dm.Auditory(6246))
+    assert(doc.rules.rules[1].auditory == dm.Auditory(6151))
+    assert(doc.rules.rules[2].auditory == dm.Auditory(6332))
+
+    assert(doc.rules.rules[0].dayOfWeek == dm.DayOfWeek.MONDAY)
+    assert(doc.rules.rules[1].dayOfWeek == dm.DayOfWeek.MONDAY)
+    assert(doc.rules.rules[2].dayOfWeek == dm.DayOfWeek.MONDAY)
+
+    assert(len(doc.dataYear.allDays[5].blocks) == 3)
+    assert(len(doc.dataYear.allDays[5 + 7].blocks) == 3)
     pass
 
 

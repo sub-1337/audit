@@ -407,6 +407,9 @@ class DocumentReader():
                             if rule.even == even:
                                 block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)
                                 day.addBlock(block)
+                        else:
+                            block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)
+                            day.addBlock(block)
                     else:
                         if weekNumber in rule.week:
                             block = block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)

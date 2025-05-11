@@ -154,6 +154,7 @@ class DocumentReader():
         self.dataYear = dm.CalenderYear()
         self.rules = dm.Rules()
         self.dayOfStartDic = None
+        self.maxWeek = 17
 
         self.data.rowMax = 100
         self.data.colMax = 25
@@ -381,7 +382,7 @@ class DocumentReader():
         return self.dataYear"""
     def calcYear(self):
         startDate = dt.datetime(self.dayOfStartDic['year'], self.dayOfStartDic['month'], self.dayOfStartDic['day'])
-        endDate = startDate + dt.timedelta(days = 30 * 7)
+        endDate = startDate + dt.timedelta(days = 31 * self.maxWeek)
         currentDate = startDate
         weekStart = startDate.isocalendar().week
         weekNumber = 0
@@ -392,6 +393,9 @@ class DocumentReader():
             weekDay = currentDate.weekday()
             #(currentDate.strftime("%Y-%m-%d") + ' ' + f"week: {weekNumber} weekday {weekDay}")            
             
+            if weekNumber > self.maxWeek:
+                return
+
             dayOfWeekEnum = dm.DayOfWeek(weekDay)
             if weekDay % 2 == 0:
                 even = dm.RuleEven.EVEN

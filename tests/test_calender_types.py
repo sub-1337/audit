@@ -55,11 +55,60 @@ def rulesToDay():
     assert(len(doc.dataYear.allDays[5 + 7].blocks) == 3)
     pass
 
+def groups():
+    assert(dr.DocumentReader.isGroup("М24-ИВТ-1 20"))
+    assert(dr.DocumentReader.isGroup("М24-ПМ 12"))    
+    assert(dr.DocumentReader.isGroup("М24-ИСТ-1  23"))    
+    assert(dr.DocumentReader.isGroup("М24-КТЭС 16"))    	
+    assert(dr.DocumentReader.isGroup("М24-Р-1 9"))
+    assert(dr.DocumentReader.isGroup("М24-ИТС   10"))
+
+    assert(dr.DocumentReader.isGroup("с 24 РЭС    30"))
+    assert(dr.DocumentReader.isGroup("24 Р1   18"))
+    assert(dr.DocumentReader.isGroup("24 Р2  17"))
+    
+    assert(dr.DocumentReader.isGroup("24 КТЭС    23	"))    
+    assert(dr.DocumentReader.isGroup("24  ИТС   28"))
+
+    assert(dr.DocumentReader.isGroup("24 ИВТ 4 - 1      24"))
+    assert(dr.DocumentReader.isGroup("24 ИВТ- 5     24  	"))
+    assert(dr.DocumentReader.isGroup("  С24 СИБ    28  	"))
+    
+    assert(dr.DocumentReader.isGroup("24 ПМ 1      24 	"))
+    assert(dr.DocumentReader.isGroup("24 ПМ 2      24 	"))
+    assert(dr.DocumentReader.isGroup("24 ИСТ   1 - 1   24 	"))
+
+    assert(dr.DocumentReader.isGroup("23 ИСТ-1-1    18	"))
+    assert(dr.DocumentReader.isGroup("С23 РЭС 29	"))
+    assert(dr.DocumentReader.isGroup("23 Р2           12	"))
+    assert(dr.DocumentReader.isGroup("23 КТЭС 24	"))
+
+    assert(dr.DocumentReader.isGroup("23 ИТС   24	"))
+    assert(dr.DocumentReader.isGroup("С 23 СИБ 28	"))
+    assert(dr.DocumentReader.isGroup("М23ИСТ-2 9	"))
+    assert(dr.DocumentReader.isGroup("М23-КТЭС 14	"))
+
+    assert(dr.DocumentReader.isGroup("22 ССК  (21)	"))
+    assert(dr.DocumentReader.isGroup("22 ТР  (10)	"))
+    assert(dr.DocumentReader.isGroup("С 22РЭС    (9)	"))
+    
+    assert(dr.DocumentReader.isGroup("22 ИТД -1  (20)"))    
+    assert(dr.DocumentReader.isGroup("22 КТ  (24)	"))    
+    assert(dr.DocumentReader.isGroup("22 СБК (37)	"))
+
+    assert(dr.DocumentReader.isGroup("22  СТ (25)	"))
+    assert(dr.DocumentReader.isGroup("22 ИС (20)	"))
+    assert(dr.DocumentReader.isGroup("22ПО  (20)	"))
+    
+    assert(dr.DocumentReader.isGroup("22 ВМ  (20)	"))
+    assert(dr.DocumentReader.isGroup("21 ИС  30	"))    
+    assert(dr.DocumentReader.isGroup("21 ПМ-1  20	"))
 
 def test():
     rules()
     parseCell()
     rulesToDay()
+    groups()
     pass
 
     

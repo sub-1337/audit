@@ -204,8 +204,9 @@ class DocumentReader():
                 return dt.time(int(s[0]),int(s[1]))
         else:
             return None
-    def isGroup(self, cell):
-        pattern = r'(.+?)\s+(\d{2})\s*$'
+    @staticmethod
+    def isGroup(cell):
+        """pattern = r'(.+?)\s+(\d{2})\s*$'
         pattern2 = r'^[С\s]*\d{1,2}[РРЭССКТР\s\-]*\s*\(\d+\)$'
         matches = re.findall(pattern, cell)
         if matches:
@@ -213,6 +214,13 @@ class DocumentReader():
         else:
             matches = re.findall(pattern2, cell)
             if matches:
+                return True
+        return False """
+        groupNames = ['ИВТ', 'ПМ', 'ИСТ', 'КТЭС', 'Р', 'ИТС', 'РЭС',\
+                      'СИБ', 'ССК', 'ТР', 'ИТД', 'КТ', 'СБК', 'СТ', 'ИС',\
+                      'ПО', 'ВМ', 'ИС']
+        for name in groupNames:
+            if name in cell:
                 return True
         return False 
     def parseBorders(self): 

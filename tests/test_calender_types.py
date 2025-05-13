@@ -34,6 +34,14 @@ def parseCell():
     assert(res[0]['subgroup'] == dm.RuleSubgroup.Group_3)
     assert(res[0]['week'] == [])
     assert(res[0]['confidence'] == 100)
+
+    cell = """лаб  5422
+Конструкторско-технологическое проектирование ЭВМ и комплексов
+
+чн 2 подгр  Макаров Н.Н. 
+"""
+    # TODO: проверка
+    res = dr.DocumentReader.parseCell(cell)
     pass
 
 def rulesToDay():
@@ -54,6 +62,14 @@ def rulesToDay():
     assert(len(doc.dataYear.allDays[5].blocks) == 3)
     assert(len(doc.dataYear.allDays[5 + 7].blocks) == 3)
     pass
+
+def rulesToDay2():
+    doc = dr.DocumentReader(os.path.join("tests", "test_files", "test_parser2.xlsx"))
+    doc.readHead()
+    doc.worbookNamesCurrent = doc.worbookNames[0]
+    doc.readDoc({'year' : 2025, 'month' : 1, 'day' : 1})
+    pass
+
 
 def groups():
     assert(dr.DocumentReader.isGroup("М24-ИВТ-1 20"))
@@ -108,6 +124,7 @@ def test():
     rules()
     parseCell()
     rulesToDay()
+    rulesToDay2()
     groups()
     pass
 

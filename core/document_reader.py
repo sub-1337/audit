@@ -28,8 +28,11 @@ class DocumentReader():
                     processed[i_row][i_col] = sheet_obj.cell(row =  i_row, column = i_col).value
     
     def detectClass(self, string):
-        if "пара" in string:
-            return True
+        if isinstance(string, str):
+            if "пара" in string:
+                return True
+            else:
+                return False
         else:
             return False
  
@@ -124,7 +127,6 @@ class DocumentReader():
                 #print(direction.name)
     
     def groupUpAndMerge(self, sheet_obj, processed):
-        direction = self.DirectionOfGroupingUp.BOTTOM
         def check(i_row_parent, i_col_parent, i_row, i_col, is_going, sheet_obj, processed, direction : self.DirectionOfGroupingUp, groupIndexes = []):
             def checkAny(cell):
                 if cell.border.top.style != None or \
@@ -184,6 +186,10 @@ class DocumentReader():
                                                     groupIndexes.append((i_row,i_col,))
                                                     is_going = True
                                                     check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
+                            else:
+                                if is_going:
+                                    groupIndexes.append((i_row,i_col,))
+                                #print((i_row, i_col), " ", cell.value)
                     else: #cell.value == None:
                         if checkSide(cell, direction):
                             if is_going:
@@ -199,26 +205,46 @@ class DocumentReader():
                                             """if not processed[i_row + 1][i_col]:                              
                                                 processed[i_row + 1][i_col] = origin_cell.value"""
                                             groupIndexes.append((i_row,i_col,))
-                                            check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)    
+                                            check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
+                        else:
+                            if is_going:
+                                groupIndexes.append((i_row,i_col,))
             return groupIndexes  
         def groupUp(group):
             print(group)
             cell = ""
+            #prevCell = ""
             for cellIndex in group:
                 if processed[cellIndex[0]][cellIndex[1]]:
+                    #if (not prevCell in cell):
+                    #    cell += processed[cellIndex[0]][cellIndex[1]]
+                    #prevCell = processed[cellIndex[0]][cellIndex[1]]
                     cell += processed[cellIndex[0]][cellIndex[1]]
+            for cellIndex in group:
+                processed[cellIndex[0]][cellIndex[1]] = cell
             pass
         visited = []
         for i_row in range(1,self.data.rowMax):
             for i_col in range(1, self.data.colMax):
                 if not ((i_row, i_col,) in visited):
-                    currentGroup = check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction, [])
+                    currentGroup = check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, self.DirectionOfGroupingUp.BOTTOM, [])
                     if len(currentGroup) > 0:
                         groupUp(currentGroup)
                     visited += currentGroup
                     pass
                 else:
                     next
+        """visited = []
+        for i_row in range(self.data.rowMax - 1, 0, -1):
+            for i_col in range(self.data.colMax - 1, 0, -1):
+                if not ((i_row, i_col,) in visited):
+                    currentGroup = check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, self.DirectionOfGroupingUp.TOP, [])
+                    if len(currentGroup) > 0:
+                        groupUp(currentGroup)
+                    visited += currentGroup
+                    pass
+                else:
+                    next"""
             
 
     def filterSpaces(self):
@@ -243,6 +269,7 @@ class DocumentReader():
         #self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.TOP)
         #self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.BOTTOM)
 
+        #self.groupUpAndMerge(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.BOTTOM)
         self.groupUpAndMerge(sheet_obj, self.data.processed)
 
         self.filterSpaces()

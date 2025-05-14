@@ -5,33 +5,18 @@ from enum import Enum
 def test():
     pass
 class InputData():
+    """
+    Данные читаемые из экселя
+    """
     def __init__(self):
         self.rowMax = 0
         self.colMax = 0
         self.processed = []
 
-"""class Day():
-    def __init__(self):
-        self.day = 1
-        self.month = 1
-        self.year = 2000
-    def _recalcWeek(self):
-        d = date(self.year, self.month, self.day)
-        self.week = 
-    def setStart(self, day, month, year):
-        pass
-    def setDayMonthYear(self, day, month, year):
-        self.day   = day
-        self.month = month 
-        self.year  = year
-        self._recalcWeek()
-    def getDayMothYear(self):
-        return (self.day, self.month, self.yea)
-    def applyDeltaMonthDay(self, week, dayOfWeek):
-        pass
-    """
-
 class Auditory():
+    """
+    Класс аудитории с номером
+    """
     def __init__(self, number):
         self.number = number
     def __hash__(self):
@@ -44,6 +29,9 @@ class Auditory():
         return str(self)
     
 class Para():
+    """
+    Класс номера пары
+    """
     def __init__(self, number):
         self.number = number
     def __hash__(self):
@@ -56,6 +44,9 @@ class Para():
         return str(self)
 
 class Subject():
+    """
+    Класс предмета (не используется)
+    """
     def __init__(self, name):
         self.name = name
     def __str__(self):
@@ -64,6 +55,9 @@ class Subject():
         return str(self)
 
 class Professor():
+    """
+    Класс имени профессора (не используется)
+    """
     def __init__(self, name):
         self.name = name
     def __str__(self):
@@ -72,6 +66,9 @@ class Professor():
         return str(self)
 
 class Group():
+    """
+    Класс группы (учеников)
+    """
     def __init__(self, name):
         self.name = name
     def __str__(self):
@@ -80,6 +77,9 @@ class Group():
         return str(self)
 
 class Id():
+    """
+    Класс id объекта данных
+    """
     def __init__(self, idNumber):
         self.idNumber = idNumber
     def __hash__(self):
@@ -92,6 +92,9 @@ class Id():
         return str(self)
 
 class RuleSubgroup(Enum):
+    """
+    Перечисление подгруппы
+    """
     DEFAULT = 0
     Group_1 = 1
     Group_2 = 2
@@ -99,6 +102,9 @@ class RuleSubgroup(Enum):
     Group_4 = 4
     
 class RuleEven(Enum):
+    """
+    Класс чётности/нечётности
+    """
     DEFAULT = 0
     # Нечётное
     ODD = 1
@@ -108,6 +114,9 @@ class RuleEven(Enum):
     # CUSTOM = 3
 
 class DayOfWeek(Enum):
+    """
+    Класс имени дня недели
+    """
     MONDAY = 0
     TUESDAY = 1
     WEDNESDAY = 2
@@ -118,6 +127,9 @@ class DayOfWeek(Enum):
 
 
 class Rule():
+    """
+    Правило - кирпичик расписания
+    """
     def __init__(self, auditory : Auditory, dayOfWeek : DayOfWeek, para : Para, even : RuleEven = RuleEven.DEFAULT, week = [],\
                 subgroup : RuleSubgroup = RuleSubgroup.DEFAULT, comment : str = "",confidence : int = 50, originalText : str = "", id : Id = None):
         self.auditory = auditory
@@ -146,6 +158,9 @@ class Rule():
             self.id == other.id
 
 class Rules():
+    """
+    Все правила, расписание
+    """
     def __init__(self):
         self.rules = []
     def addRule(self, rule : Rule):
@@ -155,6 +170,9 @@ class Rules():
 
 
 class CalenderBlock():
+    """
+    Блок сущности в календаре по дням
+    """
     def __init__(self, id : Id, time, para : Para, auditory : Auditory = None, group : Group = None, comment : str = ''):
         self.id = id
         self.time = time
@@ -171,6 +189,9 @@ class CalenderBlock():
         return self.para == block.para
 
 class CalenderDay():
+    """
+    Сущность календаря - один из дней
+    """
     def __init__(self, date : date):
         self.blocks = []
         self.date = date
@@ -217,6 +238,9 @@ class CalenderDay():
         return array
            
 class CalenderYear():
+    """
+    Все дни календаря
+    """
     def __init__(self):
         self.allDays= []
         self.rules = None

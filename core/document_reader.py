@@ -8,16 +8,25 @@ import datetime as dt
 
 class DocumentReader():
     class DirectionOfGroupingUp(Enum):
+        """
+        В какую сторону раскрывать поля (не используется)
+        """
         TOP = 0
         BOTTOM = 1
         RIGHT = 2
         LEFT = 3
 
     def getMergedCellVal(self, sheet, cell):
+        """
+        Получить значение объединённой ячейки
+        """
         rng = [s for s in sheet.merged_cells.ranges if cell.coordinate in s]
         return sheet.cell(rng[0].min_row, rng[0].min_col).value if len(rng)!=0 else cell.value
     
     def unMergeCells(self, sheet_obj, processed):
+        """
+        Раскрыть объединённые ячейки
+        """
         for i_row in range(1,self.data.rowMax):
             for i_col in range(1, self.data.colMax):              
                 cell = sheet_obj.cell(row=i_row, column=i_col)
@@ -28,6 +37,9 @@ class DocumentReader():
                     processed[i_row][i_col] = sheet_obj.cell(row =  i_row, column = i_col).value
     
     def detectClass(self, string):
+        """
+        Детект слова "пара" в ячейке
+        """
         if isinstance(string, str):
             if "пара" in string:
                 return True
@@ -37,21 +49,27 @@ class DocumentReader():
             return False
  
     def detectTime(self, string):
+        """
+        Детект значения времени в ячейке
+        """
         res = re.search("[+-]?([0-9]*[.])?[0-9]+?\/[+-]?([0-9]*[.])?[0-9]+", string)
         if res:
             return True
         else:
             return False
     
-    def detectPartOfGroup(self, string):
-        if "п/гр" in string:
-            return True
-        else:
-            return False    
-    
     def groupUpAndMerge(self, sheet_obj, processed):
+        """
+        Дублировать объединённые ячейки, обрамлённые одним бордюром
+        """
         def check(i_row_parent, i_col_parent, i_row, i_col, is_going, sheet_obj, processed, direction : self.DirectionOfGroupingUp, groupIndexes = []):
+            """
+            Проверить ячейку на предмет единого бордюра
+            """
             def checkAny(cell):
+                """
+                Есть ли хотя бы одна сторона не ограниченная бордюром
+                """
                 if cell.border.top.style != None or \
                     cell.border.bottom.style != None or \
                     cell.border.left.style != None or \
@@ -60,6 +78,9 @@ class DocumentReader():
                 else:
                     return False
             def checkAll(cell):
+                """
+                Проверить что клетка полностью обрамлена бордюрами
+                """
                 if cell.border.top.style != None and \
                     cell.border.bottom.style != None and \
                     cell.border.left.style != None and \
@@ -68,6 +89,9 @@ class DocumentReader():
                 else:
                     return False
             def checkSide(cell, direction : self.DirectionOfGroupingUp):
+                """
+                Проверить сторону на предмет бордюра
+                """
                 def checkTop(cell):
                     if cell.border.top.style == None:
                         return True
@@ -89,45 +113,36 @@ class DocumentReader():
                     if cell.value != None:
                         if not self.detectClass(cell.value):
                             if checkSide(cell, direction):
-                                if self.detectTime(cell.value) == False:
-                                    if self.detectPartOfGroup(cell.value) == False:
-                                        if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                
-                                            if direction == self.DirectionOfGroupingUp.TOP:
-                                                if (i_row - 1) > 1:
-                                                    """if not processed[i_row - 1][i_col]:
-                                                        processed[i_row - 1][i_col] = origin_cell.value
-                                                    is_going = True"""
-                                                    groupIndexes.append((i_row,i_col,))
-                                                    check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
-                                            if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                                if (i_row + 1) < self.data.rowMax:
-                                                    """if not processed[i_row + 1][i_col]:
-                                                        processed[i_row + 1][i_col] = origin_cell.value"""
-                                                    groupIndexes.append((i_row,i_col,))
-                                                    check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
+                                if self.detectTime(cell.value) == False:                                    
+                                    if i_row < self.data.rowMax and  i_col < self.data.colMax:
+                                        if direction == self.DirectionOfGroupingUp.BOTTOM:
+                                            if (i_row + 1) < self.data.rowMax:
+                                                # Добавить клеточку в список объединяемых
+                                                groupIndexes.append((i_row,i_col,))
+                                                #  Рекурсивный вызов для новой клеточки (ниже чем текущая)
+                                                check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
                             else:
+                                # Добавить текущую клеточку (которая упирается в бордюр)
                                 groupIndexes.append((i_row,i_col,))
-                                #print((i_row, i_col), " ", cell.value)
                     else: #cell.value == None:
                         if checkSide(cell, direction):
                             if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                                                    
-                                if direction == self.DirectionOfGroupingUp.TOP:
-                                    if (i_row - 1) > 1:
-                                        """if not processed[i_row - 1][i_col]:
-                                            processed[i_row - 1][i_col] = origin_cell.value"""
-                                        groupIndexes.append((i_row,i_col,))
-                                        check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
                                 if direction == self.DirectionOfGroupingUp.BOTTOM:
                                     if (i_row + 1) < self.data.rowMax: 
-                                        """if not processed[i_row + 1][i_col]:                              
-                                            processed[i_row + 1][i_col] = origin_cell.value"""
+                                        # Добавить текущую пустую клеточку в список объединяемых
                                         groupIndexes.append((i_row,i_col,))
+                                        # Рекурсивно проверить следующую клеточку (ниже чем текущая)
                                         check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
                         else:
+                            # Добавить текущую клеточку (которая упирается в бордюр)
                             groupIndexes.append((i_row,i_col,))
+            # Вернуть список объединяемых клеточек
             return groupIndexes  
+        
         def groupUp(group):
-            print(group)
+            """
+            Сгруппировать уникальные значения ячеек
+            """
 
             uniqueValues = []
             for cellIndex in group:
@@ -155,20 +170,12 @@ class DocumentReader():
                     pass
                 else:
                     next
-        """visited = []
-        for i_row in range(self.data.rowMax - 1, 0, -1):
-            for i_col in range(self.data.colMax - 1, 0, -1):
-                if not ((i_row, i_col,) in visited):
-                    currentGroup = check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, self.DirectionOfGroupingUp.TOP, [])
-                    if len(currentGroup) > 0:
-                        groupUp(currentGroup)
-                    visited += currentGroup
-                    pass
-                else:
-                    next"""
             
 
     def filterSpaces(self):
+        """
+        Убрать лишние пробелы
+        """
         for i_row in range(1,self.data.rowMax):
             for i_col in range(1, self.data.colMax):
                 blockStr = self.data.processed[i_row][i_col]
@@ -177,6 +184,9 @@ class DocumentReader():
                 self.data.processed[i_row][i_col] = " ".join(blockStr.split())
 
     def readDoc(self, dayOfStartDic):
+        """
+        Прочитать документ и составить все таблицы
+        """
         if self.worbookNamesCurrent:
             sheet_obj = self.wb_obj[self.worbookNamesCurrent]
         else:
@@ -184,47 +194,58 @@ class DocumentReader():
         
         self.dayOfStartDic = dayOfStartDic
 
+        # Создать рабочую структуру
+        self.data.processed = [ [""]*self.data.colMax for i in range(self.data.rowMax)]
         # Избавится от объеденённых ячеек
-        self.data.processed = [ [0]*self.data.colMax for i in range(self.data.rowMax)]
+
         self.unMergeCells(sheet_obj, self.data.processed)
 
+        # Склеить ячейки в одном блоке бордюра
         self.groupUpAndMerge(sheet_obj, self.data.processed)
 
+        # Убрать лишние пробелы
         self.filterSpaces()
 
+        # Распарсить данные таблицы сверху/слева такие как группа и время
         self.parseBorders()
 
+        # Распарсить правила
         self.parseData()
 
+        # Создать из данных таблицу по дням
         self.calcYear()
-    def readHead(self):        
+    def readHead(self):
+        """
+        Прочитать заголовок эксель файла на предмет книг
+        """       
         self.wb_obj = openpyxl.load_workbook(self.docPath)
         self.worbookNames = self.wb_obj.sheetnames
     def __init__(self, docPath):
         super().__init__()
+        # Данные распаршенные напрямую
         self.data = InputData()
+        # Данные по дням
         self.dataYear = dm.CalenderYear()
+        # Список всех правил
         self.rules = dm.Rules()
+        # День начала учебного года
         self.dayOfStartDic = None
+        # Длительность учебного года
         self.maxWeek = 17
 
         self.data.rowMax = 100
         self.data.colMax = 25
+        # Путь до файла
         self.docPath = docPath
 
+        # Текущий вариант книги эксель
         self.worbookNamesCurrent = None
-        self.readHead()
-        # To open the workbook 
-        # workbook object is created
-        #wb_obj = openpyxl.load_workbook(path)
-
-        # Get workbook active sheet object
-        # from the active attribute
-        #sheet_obj = wb_obj.active        
+        self.readHead()        
         
-    def getRules(self):
-        return self.rules
     def isWeekDayName(self, cell):
+        """
+        Является ли строка днём недели
+        """
         if cell == 'п о н е д е л ь н и к' or cell == 'П о н е д е л ь н и к' or cell == 'понедельник':
             return dm.DayOfWeek.MONDAY
         elif cell == 'в т о р н и к' or cell == 'В т о р н и к' or cell == 'вторник':
@@ -240,6 +261,9 @@ class DocumentReader():
         else:
             return None
     def isPara(self, cell):
+        """
+        Является ли строка - парой
+        """
         if 'пара' in cell:
             number = cell[0]
             number = int(number)
@@ -247,6 +271,9 @@ class DocumentReader():
         else:
             return None
     def isTime(self, cell):
+        """
+        Является ли строка временем занятия
+        """
         pattern = r'\d{1,2}\.\d{2}/\d{1,2}\.\d{2}'
         match = re.search(pattern, cell)
         if match:
@@ -258,16 +285,9 @@ class DocumentReader():
             return None
     @staticmethod
     def isGroup(cell):
-        """pattern = r'(.+?)\s+(\d{2})\s*$'
-        pattern2 = r'^[С\s]*\d{1,2}[РРЭССКТР\s\-]*\s*\(\d+\)$'
-        matches = re.findall(pattern, cell)
-        if matches:
-            return True
-        else:
-            matches = re.findall(pattern2, cell)
-            if matches:
-                return True
-        return False """
+        """
+        Является ли строка названием группы
+        """
         groupNames = ['ИВТ', 'ПМ', 'ИСТ', 'КТЭС', 'Р', 'ИТС', 'РЭС',\
                       'СИБ', 'ССК', 'ТР', 'ИТД', 'КТ', 'СБК', 'СТ', 'ИС',\
                       'ПО', 'ВМ', 'ИС']
@@ -276,24 +296,15 @@ class DocumentReader():
                 return True
         return False 
     def parseBorders(self): 
-        # DEBUG
-        """calenderDay = dm.CalenderDay(dm.date(2025, 9, 25))
-
-        calenderDay.addBlock(dm.CalenderBlock(dm.Id(1), dt.time(10, 0), dm.Para(1), dm.Auditory("5442"), dm.Subject("Math"), dm.Professor("Big Smoke"), dm.Group("a1")))
-        calenderDay.addBlock(dm.CalenderBlock(dm.Id(2), dt.time(10, 0), dm.Para(1), dm.Auditory("5442"), dm.Subject("Music"), dm.Professor("Big Smoke"), dm.Group("a1")))
-        calenderDay.addBlock(dm.CalenderBlock(dm.Id(3), dt.time(12, 0), dm.Para(3), dm.Auditory("1442"), dm.Subject("Prog"), dm.Professor("Small di"), dm.Group("a1")))
-        calenderDay.addBlock(dm.CalenderBlock(dm.Id(4), dt.time(11, 0), dm.Para(2), dm.Auditory("1442"), dm.Subject("Russian"), dm.Professor("Lol Kek"), dm.Group("a1")))
-        calenderDay.addBlock(dm.CalenderBlock(dm.Id(5), dt.time(14, 0), dm.Para(5), dm.Auditory("3442"), dm.Subject("English"), dm.Professor("Abu Hui"), dm.Group("a1")))
-
-        self.dataYear.addDay(calenderDay)"""
+        """
+        Распарсить данные таблицы сверху/слева такие как группа и время
+        """
 
         # Пройтись по левой колонке где день и пара/время
         i_row = 0
         readed = False
         self.leftColumnData = []
         while not readed:
-            #rowsCurrent, colsCurrent = 4, 50
-            #currentRow = [[0 for _ in range(colsCurrent)] for _ in range(rowsCurrent)]
             for j_col in range(15):
                 cell = self.data.processed[i_row][j_col]
                 weekday = self.isWeekDayName(cell)
@@ -329,6 +340,9 @@ class DocumentReader():
         #self.rules.addRule(dm.Rule(dm.Auditory("5442"), dm.DayOfWeek.MONDAY, dm.Para(1), dm.RuleEven.DEFAULT, None, dm.RuleSubgroup.DEFAULT, dm.Id(1)))
     @staticmethod
     def parseCell(cell):
+        """
+        Прочитать ячейку и вернуть заготовку для правила
+        """
         if not cell:
             return None
         
@@ -410,8 +424,9 @@ class DocumentReader():
         return result
 
     def parseData(self):
-        # self.leftColumnData
-        # self.topRowData
+        """
+        Распарсить правила
+        """
         self.rules = dm.Rules()
         idNum = 1
         for left in self.leftColumnData:
@@ -438,9 +453,10 @@ class DocumentReader():
                                                    rule['week'], rule['subgroup'], rule['comment'], rule['confidence']))
         pass
 
-    """def GetDataYear(self, year, month, day):
-        return self.dataYear"""
     def calcYear(self):
+        """
+        Создать из данных таблицу по дням
+        """
         startDate = dt.datetime(self.dayOfStartDic['year'], self.dayOfStartDic['month'], self.dayOfStartDic['day'])
         endDate = startDate + dt.timedelta(days = 31 * self.maxWeek)
         currentDate = startDate
@@ -486,5 +502,8 @@ class DocumentReader():
         # block = dm.CalenderBlock(None, dt.time(11,30), dm.Para(1), dm.Auditory(1000))
         #day.addBlock(block)
         #self.dataYear.addDay(day)
-    def GetDay(self, year, month, day):
-        pass
+    def getRules(self):
+        """
+        Вернуть правила
+        """
+        return self.rules

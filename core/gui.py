@@ -10,36 +10,25 @@ from datetime import datetime, timedelta
 from functools import partial
 from core.document_reader import DocumentReader
 
-# debug
-"""
-def GUI_input_show(inputData : InputData):
-    app = QApplication([])
-    window = GUI_input(inputData, None)
-    window.show()
-    app.exec()  
-"""
 def GUI_main_window_show():
     app = QApplication([])
     window = GUI_main_window()
     window.show()
     app.exec()  
 
-# debug    
-"""
-def GUI_calender_window_show(calenderData : CalenderData):
-    app = QApplication([])
-    window = GUI_calendar(calenderData)
-    window.show()
-    app.exec()     
-"""
-
 class GUI_rule(QWidget):
+    """
+    Просмотр правила (не используется)
+    """
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Правило')
         self.setGeometry(100, 100, 800, 600)  # x, y, width, height
 
 class GUI_rules(QWidget):
+    """
+    Окно с правилами
+    """
     def __init__(self, rules : dm.Rules):
         super().__init__()
         self.setWindowTitle('Правила расписания')
@@ -62,6 +51,9 @@ class GUI_rules(QWidget):
         self.setLayout(layout)
 
 class GUI_day(QWidget):
+    """
+    Просмотр дня
+    """
     def __init__(self, calender : dm.CalenderYear, currentDay):
         super().__init__()
         self.setWindowTitle('Расписание на день')
@@ -123,6 +115,9 @@ class GUI_day(QWidget):
         pass
 
 class GUI_calendar(QWidget):
+    """
+    Календарь
+    """
     def __init__(self, dataYear : dm.CalenderYear):
         super().__init__()
         self.setWindowTitle("Режим календаря")
@@ -215,6 +210,9 @@ class GUI_calendar(QWidget):
         self.date_label.setText(f"Дата: {date.strftime('%d.%m.%Y')}")
 
 class GUI_main_window(QWidget):
+    """
+    Главное окно
+    """
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Утилита audit")
@@ -315,9 +313,10 @@ class GUI_main_window(QWidget):
             msg.exec()
             return False
 
-
-# Получает данные и родительское окно (чтобы восстановить его после закрытия текущего)
 class GUI_input(QWidget):
+    """
+    Отладочный вывод таблицы
+    """
     def __init__(self, inputData : InputData):
         super().__init__()
         #self.parent = parent

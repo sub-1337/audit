@@ -49,83 +49,6 @@ class DocumentReader():
         else:
             return False    
     
-    def groupUpBorders(self, sheet_obj, processed, direction : DirectionOfGroupingUp):
-        def check(i_row_parent, i_col_parent, i_row, i_col, is_going, sheet_obj, processed, direction : self.DirectionOfGroupingUp):
-            def checkAny(cell):
-                if cell.border.top.style != None or \
-                    cell.border.bottom.style != None or \
-                    cell.border.left.style != None or \
-                    cell.border.right.style != None:
-                    return True
-                else:
-                    return False
-            def checkAll(cell):
-                if cell.border.top.style != None and \
-                    cell.border.bottom.style != None and \
-                    cell.border.left.style != None and \
-                    cell.border.right.style != None:
-                    return True
-                else:
-                    return False
-            def checkSide(cell, direction : self.DirectionOfGroupingUp):
-                def checkTop(cell):
-                    if cell.border.top.style == None:
-                        return True
-                    else:
-                        return False
-                def checkBottom(cell):
-                    if cell.border.bottom.style == None:
-                        return True
-                    else:
-                        return False
-                if direction == self.DirectionOfGroupingUp.TOP:
-                    return checkTop(cell)
-                elif direction == self.DirectionOfGroupingUp.BOTTOM:
-                    return checkBottom(cell)
-            
-            cell = sheet_obj.cell(row=i_row, column=i_col)
-            if cell.value:
-                print(f" i_row {i_row} i_col {i_col} cell.value {cell.value}")
-            origin_cell = sheet_obj.cell(row=i_row_parent, column=i_col_parent)
-            if checkAny(cell):
-                if checkAll(cell) == False:
-                    if cell.value != None:
-                        if not self.detectClass(cell.value):
-                            if checkSide(cell, direction):
-                                if self.detectTime(cell.value) == False:
-                                    if self.detectPartOfGroup(cell.value) == False:
-                                        if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                
-                                            if direction == self.DirectionOfGroupingUp.TOP:
-                                                if (i_row - 1) > 1:
-                                                    if not processed[i_row - 1][i_col]:
-                                                        processed[i_row - 1][i_col] = origin_cell.value
-                                                    is_going = True
-                                                    check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
-                                            if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                                if (i_row + 1) < self.data.rowMax:
-                                                    if not processed[i_row + 1][i_col]:
-                                                        processed[i_row + 1][i_col] = origin_cell.value
-                                                    is_going = True
-                                                    check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)
-                    else: #cell.value == None:
-                        if checkSide(cell, direction):
-                            if is_going:
-                                if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                                                    
-                                    if direction == self.DirectionOfGroupingUp.TOP:
-                                        if (i_row - 1) > 1:
-                                            if not processed[i_row - 1][i_col]:
-                                                processed[i_row - 1][i_col] = origin_cell.value
-                                            check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction)
-                                    if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                        if (i_row + 1) < self.data.rowMax: 
-                                            if not processed[i_row + 1][i_col]:                              
-                                                processed[i_row + 1][i_col] = origin_cell.value
-                                            check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction)                  
-        for i_row in range(1,self.data.rowMax):
-            for i_col in range(1, self.data.colMax):
-                check(i_row, i_col, i_row, i_col, False, sheet_obj, processed, direction)
-                #print(direction.name)
-    
     def groupUpAndMerge(self, sheet_obj, processed):
         def check(i_row_parent, i_col_parent, i_row, i_col, is_going, sheet_obj, processed, direction : self.DirectionOfGroupingUp, groupIndexes = []):
             def checkAny(cell):
@@ -161,9 +84,6 @@ class DocumentReader():
                     return checkBottom(cell)
             
             cell = sheet_obj.cell(row=i_row, column=i_col)
-            """if cell.value:
-                print(f" i_row {i_row} i_col {i_col} cell.value {cell.value}")"""
-            origin_cell = sheet_obj.cell(row=i_row_parent, column=i_col_parent)
             if checkAny(cell):
                 if checkAll(cell) == False:
                     if cell.value != None:
@@ -184,45 +104,46 @@ class DocumentReader():
                                                     """if not processed[i_row + 1][i_col]:
                                                         processed[i_row + 1][i_col] = origin_cell.value"""
                                                     groupIndexes.append((i_row,i_col,))
-                                                    is_going = True
                                                     check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
                             else:
-                                if is_going:
-                                    groupIndexes.append((i_row,i_col,))
+                                groupIndexes.append((i_row,i_col,))
                                 #print((i_row, i_col), " ", cell.value)
                     else: #cell.value == None:
                         if checkSide(cell, direction):
-                            if is_going:
-                                if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                                                    
-                                    if direction == self.DirectionOfGroupingUp.TOP:
-                                        if (i_row - 1) > 1:
-                                            """if not processed[i_row - 1][i_col]:
-                                                processed[i_row - 1][i_col] = origin_cell.value"""
-                                            groupIndexes.append((i_row,i_col,))
-                                            check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
-                                    if direction == self.DirectionOfGroupingUp.BOTTOM:
-                                        if (i_row + 1) < self.data.rowMax: 
-                                            """if not processed[i_row + 1][i_col]:                              
-                                                processed[i_row + 1][i_col] = origin_cell.value"""
-                                            groupIndexes.append((i_row,i_col,))
-                                            check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
+                            if i_row < self.data.rowMax and  i_col < self.data.colMax:                                                                                    
+                                if direction == self.DirectionOfGroupingUp.TOP:
+                                    if (i_row - 1) > 1:
+                                        """if not processed[i_row - 1][i_col]:
+                                            processed[i_row - 1][i_col] = origin_cell.value"""
+                                        groupIndexes.append((i_row,i_col,))
+                                        check(i_row_parent, i_col_parent, i_row - 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
+                                if direction == self.DirectionOfGroupingUp.BOTTOM:
+                                    if (i_row + 1) < self.data.rowMax: 
+                                        """if not processed[i_row + 1][i_col]:                              
+                                            processed[i_row + 1][i_col] = origin_cell.value"""
+                                        groupIndexes.append((i_row,i_col,))
+                                        check(i_row_parent, i_col_parent, i_row + 1, i_col, is_going, sheet_obj, processed, direction, groupIndexes)
                         else:
-                            if is_going:
-                                groupIndexes.append((i_row,i_col,))
+                            groupIndexes.append((i_row,i_col,))
             return groupIndexes  
         def groupUp(group):
             print(group)
-            cell = ""
-            #prevCell = ""
+
+            uniqueValues = []
             for cellIndex in group:
-                if processed[cellIndex[0]][cellIndex[1]]:
-                    #if (not prevCell in cell):
-                    #    cell += processed[cellIndex[0]][cellIndex[1]]
-                    #prevCell = processed[cellIndex[0]][cellIndex[1]]
-                    cell += processed[cellIndex[0]][cellIndex[1]]
+                currCell = processed[cellIndex[0]][cellIndex[1]]
+                if currCell:
+                    if currCell not in uniqueValues:
+                        uniqueValues.append(currCell)
+
+            cellSummed = ''
+
+            for cellCurr in uniqueValues:
+                cellSummed += ' '
+                cellSummed += cellCurr
+            
             for cellIndex in group:
-                processed[cellIndex[0]][cellIndex[1]] = cell
-            pass
+                processed[cellIndex[0]][cellIndex[1]] = cellSummed
         visited = []
         for i_row in range(1,self.data.rowMax):
             for i_col in range(1, self.data.colMax):
@@ -266,10 +187,7 @@ class DocumentReader():
         # Избавится от объеденённых ячеек
         self.data.processed = [ [0]*self.data.colMax for i in range(self.data.rowMax)]
         self.unMergeCells(sheet_obj, self.data.processed)
-        #self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.TOP)
-        #self.groupUpBorders(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.BOTTOM)
 
-        #self.groupUpAndMerge(sheet_obj, self.data.processed, self.DirectionOfGroupingUp.BOTTOM)
         self.groupUpAndMerge(sheet_obj, self.data.processed)
 
         self.filterSpaces()

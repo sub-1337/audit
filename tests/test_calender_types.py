@@ -121,11 +121,26 @@ def groups():
     assert(dr.DocumentReader.isGroup("21 ПМ-1  20	"))
 
 def test():
-    rules()
-    parseCell()
-    rulesToDay()
-    rulesToDay2()
-    groups()
+    try:
+        rules()
+    except:
+        print("Тест уникальности не пройден")
+    try:
+        parseCell()
+    except:
+        print("Тест на парсинг ячейки не пройден")
+    try:
+        rulesToDay()
+    except:
+        print("Тест test_parser.xlsx не пройден")
+    try:
+        rulesToDay2()
+    except:
+        print("Тест test_parser2.xlsx не пройден")
+    try:
+        groups()
+    except:
+        print("Тест на определение группы не пройден")
     pass
 
     

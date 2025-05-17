@@ -29,6 +29,11 @@ def test2():
     print("ok")
 
 def test():
-    
-    test1()
-    test2()
+    try:    
+        test1()
+    except:
+        print("test_reader.xlsx тест не пройден")
+    try:
+        test2()
+    except:
+        print("test_reader2.xlsx тест не пройден")

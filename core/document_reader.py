@@ -356,14 +356,14 @@ class DocumentReader():
         week = []
         subgroup = dm.RuleSubgroup.DEFAULT
 
-        if 'чн.' in cell:
+        if ('чн.' in cell) or ('чн' in cell):
             even = dm.RuleEven.EVEN
-            if 'нч.' in cell:
+            if ('нч.' in cell) or ('нч' in cell):
                 confidence -= 20
             
-        if 'нч.' in cell:
+        if ('нч.' in cell) or ('нч' in cell):
             even = dm.RuleEven.ODD
-            if 'чн.' in cell:
+            if ('чн.' in cell) or ('чн' in cell):
                 confidence -= 20
         
         comment = cell.replace('чн.','')

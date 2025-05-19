@@ -39,9 +39,13 @@ def parseCell():
 Конструкторско-технологическое проектирование ЭВМ и комплексов
 
 чн 2 подгр  Макаров Н.Н. 
-"""
+""" 
     # TODO: проверка
     res = dr.DocumentReader.parseCell(cell)
+    assert res[0]['auditory'] == dm.Auditory(5422)
+    assert res[0]['even'] == dm.RuleEven.EVEN
+    assert res[0]['subgroup'] == dm.RuleSubgroup.Group_2
+    assert res[0]['confidence'] == 100
     pass
 
 def rulesToDay():

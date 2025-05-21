@@ -129,46 +129,46 @@ class GUI_calendar(QWidget):
         self.layout = QVBoxLayout()
         
         # Год
-        self.year_input = QSpinBox()
-        self.year_input.setRange(1900, 2100)
-        self.year_input.setValue(2025)
+        self.yearInput = QSpinBox()
+        self.yearInput.setRange(1900, 2100)
+        self.yearInput.setValue(2025)
         
         # Месяц
-        self.month_input = QSpinBox()
-        self.month_input.setRange(1, 12)
-        self.month_input.setValue(9)
+        self.monthInput = QSpinBox()
+        self.monthInput.setRange(1, 12)
+        self.monthInput.setValue(9)
         
         # Номер недели
-        self.week_input = QSpinBox()
-        self.week_input.setRange(1, 53)
-        self.week_input.setValue(1)
+        self.weekInput = QSpinBox()
+        self.weekInput.setRange(1, 53)
+        self.weekInput.setValue(1)
         
         # День недели
-        self.day_input = QSpinBox()
-        self.day_input.setRange(0, 6)
-        self.day_input.setValue(0)
+        self.dayInput = QSpinBox()
+        self.dayInput.setRange(0, 6)
+        self.dayInput.setValue(0)
         
-        self.year_input.valueChanged.connect(self.update_calendar)
-        self.month_input.valueChanged.connect(self.update_calendar)
+        self.yearInput.valueChanged.connect(self.update_calendar)
+        self.monthInput.valueChanged.connect(self.update_calendar)
         
         self.layout.addWidget(QLabel("Выберите год:"))
-        self.layout.addWidget(self.year_input)
+        self.layout.addWidget(self.yearInput)
         self.layout.addWidget(QLabel("Выберите месяц:"))
-        self.layout.addWidget(self.month_input)
+        self.layout.addWidget(self.monthInput)
         
         self.grid_layout = QGridLayout()
         self.layout.addLayout(self.grid_layout)
         
         self.layout.addWidget(QLabel("Выберите номер недели:"))
-        self.layout.addWidget(self.week_input)
+        self.layout.addWidget(self.weekInput)
         self.layout.addWidget(QLabel("Выберите день недели (0 - Пн, 6 - Вс):"))
-        self.layout.addWidget(self.day_input)
+        self.layout.addWidget(self.dayInput)
         
         self.date_label = QLabel("Дата:")
         self.layout.addWidget(self.date_label)
         
-        self.week_input.valueChanged.connect(self.get_date_from_week)
-        self.day_input.valueChanged.connect(self.get_date_from_week)
+        self.weekInput.valueChanged.connect(self.get_date_from_week)
+        self.dayInput.valueChanged.connect(self.get_date_from_week)
         
         self.setLayout(self.layout)
         self.update_calendar()
@@ -177,8 +177,8 @@ class GUI_calendar(QWidget):
         for i in reversed(range(self.grid_layout.count())):
             self.grid_layout.itemAt(i).widget().setParent(None)
         
-        year = self.year_input.value()
-        month = self.month_input.value()
+        year = self.yearInput.value()
+        month = self.monthInput.value()
         cal = calendar.monthcalendar(year, month)
         
         days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
@@ -193,15 +193,15 @@ class GUI_calendar(QWidget):
                     self.grid_layout.addWidget(btn, row, col)
     
     def click_day_button(self, day):
-        year = self.year_input.value()
-        month = self.month_input.value()
+        year = self.yearInput.value()
+        month = self.monthInput.value()
         self.day_widget = GUI_day(self.dataYear, {'year' : year, 'month' : month , 'day' : day})
         self.day_widget.show()
 
     def get_date_from_week(self):
-        year = self.year_input.value()
-        week = self.week_input.value()
-        day = self.day_input.value()
+        year = self.yearInput.value()
+        week = self.weekInput.value()
+        day = self.dayInput.value()
         
         first_day = datetime(year, 1, 1)
         first_monday = first_day + timedelta(days=(7 - first_day.weekday()) % 7)

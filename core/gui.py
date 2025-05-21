@@ -212,7 +212,6 @@ class GUI_calendar(QWidget):
         self.day_widget = GUI_day(self.dataYear, fullDay)
         self.day_widget.show()
     def get_date_from_week(self):
-        #year = self.yearInput.value()
         week = self.weekInput.value()
         day = self.dayInput.value()
         

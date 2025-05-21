@@ -137,6 +137,8 @@ class GUI_calendar(QWidget):
         self.monthInput = QSpinBox()
         self.monthInput.setRange(1, 12)
         self.monthInput.setValue(9)
+
+        self.monthName = QLabel("месяц")
         
         # Номер недели
         self.weekInput = QSpinBox()
@@ -154,6 +156,7 @@ class GUI_calendar(QWidget):
         self.layout.addWidget(QLabel("Выберите год:"))
         self.layout.addWidget(self.yearInput)
         self.layout.addWidget(QLabel("Выберите месяц:"))
+        self.layout.addWidget(self.monthName)
         self.layout.addWidget(self.monthInput)
         
         self.grid_layout = QGridLayout()
@@ -181,6 +184,10 @@ class GUI_calendar(QWidget):
         month = self.monthInput.value()
         cal = calendar.monthcalendar(year, month)
         
+        monthName = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+
+        self.monthName.setText(monthName[month])
+
         days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
         for col, day in enumerate(days):
             self.grid_layout.addWidget(QLabel(day), 0, col)

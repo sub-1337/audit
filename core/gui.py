@@ -118,12 +118,14 @@ class GUI_calendar(QWidget):
     """
     Календарь
     """
-    def __init__(self, dataYear : dm.CalenderYear):
-        super().__init__()
+    
+    def __init__(self, dataYear : dm.CalenderYear, startDate):
+        super().__init__()        
+        self.dataYear = dataYear
+        self.dateOfStartDic = startDate
         self.setWindowTitle("Режим календаря")
         self.resize(400, 200)
         self.initUI()
-        self.dataYear = dataYear
 
     def initUI(self):
         self.layout = QVBoxLayout()
@@ -138,17 +140,21 @@ class GUI_calendar(QWidget):
         self.monthInput.setRange(1, 12)
         self.monthInput.setValue(9)
 
-        self.monthName = QLabel("месяц")
+        # Месяц - надпись
+        self.monthName = QLabel("[месяц]")
         
         # Номер недели
         self.weekInput = QSpinBox()
-        self.weekInput.setRange(1, 53)
-        self.weekInput.setValue(1)
+        self.weekInput.setRange(0, 53)
+        self.weekInput.setValue(0)
         
         # День недели
         self.dayInput = QSpinBox()
         self.dayInput.setRange(0, 6)
         self.dayInput.setValue(0)
+
+        # День - переход по дню недели
+        self.dayWeekButton = QPushButton("[перейти]")
         
         self.yearInput.valueChanged.connect(self.update_calendar)
         self.monthInput.valueChanged.connect(self.update_calendar)
@@ -166,15 +172,14 @@ class GUI_calendar(QWidget):
         self.layout.addWidget(self.weekInput)
         self.layout.addWidget(QLabel("Выберите день недели (0 - Пн, 6 - Вс):"))
         self.layout.addWidget(self.dayInput)
-        
-        self.date_label = QLabel("Дата:")
-        self.layout.addWidget(self.date_label)
-        
+        self.layout.addWidget(self.dayWeekButton)
+                
         self.weekInput.valueChanged.connect(self.get_date_from_week)
         self.dayInput.valueChanged.connect(self.get_date_from_week)
         
         self.setLayout(self.layout)
         self.update_calendar()
+        self.get_date_from_week()
     
     def update_calendar(self):
         for i in reversed(range(self.grid_layout.count())):
@@ -201,20 +206,22 @@ class GUI_calendar(QWidget):
     
     def click_day_button(self, day):
         year = self.yearInput.value()
-        month = self.monthInput.value()
-        self.day_widget = GUI_day(self.dataYear, {'year' : year, 'month' : month , 'day' : day})
+        month = self.monthInput.value()        
+        self.callDay({'year' : year, 'month' : month , 'day' : day})
+    def callDay(self, fullDay):
+        self.day_widget = GUI_day(self.dataYear, fullDay)
         self.day_widget.show()
-
     def get_date_from_week(self):
-        year = self.yearInput.value()
+        #year = self.yearInput.value()
         week = self.weekInput.value()
         day = self.dayInput.value()
         
-        first_day = datetime(year, 1, 1)
+        first_day = datetime(self.dateOfStartDic['year'], self.dateOfStartDic['month'], self.dateOfStartDic['day'])
         first_monday = first_day + timedelta(days=(7 - first_day.weekday()) % 7)
         date = first_monday + timedelta(weeks=week-1, days=day)
         
-        self.date_label.setText(f"Дата: {date.strftime('%d.%m.%Y')}")
+        self.dayWeekButton.setText(f"Дата: {date.strftime('%d.%m.%Y')}")
+        self.dayWeekButton.clicked.connect(lambda: self.callDay({'year' : date.year, 'month' :  date.month , 'day' :  date.day}))
 
 class GUI_main_window(QWidget):
     """
@@ -293,7 +300,7 @@ class GUI_main_window(QWidget):
         self.button_show_doc.setDisabled(False)
     def open_file(self):
         if self.readDoc():
-            self.calender = GUI_calendar(self.document.dataYear)
+            self.calender = GUI_calendar(self.document.dataYear, self.dateOfStartDic)
             self.calender.show()
     def show_document(self):
         if self.readDoc() == False:

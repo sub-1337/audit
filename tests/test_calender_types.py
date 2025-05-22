@@ -48,6 +48,8 @@ def parseCell():
     assert res[0]['confidence'] == 100
     pass
 
+    
+
 def rulesToDay():
     doc = dr.DocumentReader(os.path.join("tests", "test_files", "test_parser.xlsx"))
     doc.readHead()

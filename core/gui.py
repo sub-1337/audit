@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel, QCalendarWidget
+from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel, QCalendarWidget, QSpacerItem
 from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox, QComboBox, QMessageBox
 from PyQt6.QtGui import QColor
 from PyQt6.QtCore import Qt, QDate
@@ -129,7 +129,10 @@ class GUI_calendar(QWidget):
 
     def initUI(self):
         self.layout = QVBoxLayout()
-        
+
+        self.grid_layout = QGridLayout()
+        self.layout.addLayout(self.grid_layout)
+
         # Год
         self.yearInput = QSpinBox()
         self.yearInput.setRange(1900, 2100)
@@ -140,8 +143,14 @@ class GUI_calendar(QWidget):
         self.monthInput.setRange(1, 12)
         self.monthInput.setValue(9)
 
-        # Месяц - надпись
-        self.monthName = QLabel("[месяц]")
+        # Месяц - выпадающий список
+        self.monthName = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+        self.monthNameBox = QComboBox()
+        self.monthNameBox.addItems(self.monthName)
+
+        # Дата - начало надпись
+        startDate = self.dateOfStartDic
+        self.startDateLabel = QLabel(f"Дата начала: {startDate['day']:02}.{startDate['month']:02}.{startDate['year']}")
         
         # Номер недели
         self.weekInput = QSpinBox()
@@ -158,16 +167,15 @@ class GUI_calendar(QWidget):
         
         self.yearInput.valueChanged.connect(self.update_calendar)
         self.monthInput.valueChanged.connect(self.update_calendar)
-        
+        self.monthNameBox.currentIndexChanged.connect(self.updateMonthBox)        
         self.layout.addWidget(QLabel("Выберите год:"))
         self.layout.addWidget(self.yearInput)
         self.layout.addWidget(QLabel("Выберите месяц:"))
-        self.layout.addWidget(self.monthName)
+        self.layout.addWidget(self.monthNameBox)
         self.layout.addWidget(self.monthInput)
         
-        self.grid_layout = QGridLayout()
-        self.layout.addLayout(self.grid_layout)
-        
+               
+        self.layout.addWidget(self.startDateLabel)
         self.layout.addWidget(QLabel("Выберите номер недели:"))
         self.layout.addWidget(self.weekInput)
         self.layout.addWidget(QLabel("Выберите день недели (0 - Пн, 6 - Вс):"))
@@ -181,22 +189,25 @@ class GUI_calendar(QWidget):
         self.update_calendar()
         self.get_date_from_week()
     
+    def updateMonthBox(self):
+        self.monthInput.setValue(self.monthNameBox.currentIndex() + 1)
     def update_calendar(self):
         for i in reversed(range(self.grid_layout.count())):
             self.grid_layout.itemAt(i).widget().setParent(None)
         
         year = self.yearInput.value()
         month = self.monthInput.value()
-        cal = calendar.monthcalendar(year, month)
+        cal = calendar.monthcalendar(year, month)        
         
-        monthName = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
-
-        self.monthName.setText(monthName[month])
+        assert (month - 1) < len(self.monthName)
+        self.monthNameBox.setCurrentText(self.monthName[month - 1])
 
         days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
         for col, day in enumerate(days):
             self.grid_layout.addWidget(QLabel(day), 0, col)
         
+    
+
         for row, week in enumerate(cal, start=1):
             for col, day in enumerate(week):
                 if day != 0:

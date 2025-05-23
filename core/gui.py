@@ -128,10 +128,7 @@ class GUI_calendar(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.layout = QVBoxLayout()
-
-        self.grid_layout = QGridLayout()
-        self.layout.addLayout(self.grid_layout)
+        self.layout = QVBoxLayout()        
 
         # Год
         self.yearInput = QSpinBox()
@@ -157,6 +154,11 @@ class GUI_calendar(QWidget):
         self.weekInput.setRange(0, 53)
         self.weekInput.setValue(0)
         
+        # День недели - выпадающий список
+        self.weekDayName = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+        self.weekDayNameBox = QComboBox()
+        self.weekDayNameBox.addItems(self.weekDayName)
+
         # День недели
         self.dayInput = QSpinBox()
         self.dayInput.setRange(0, 6)
@@ -167,21 +169,48 @@ class GUI_calendar(QWidget):
         
         self.yearInput.valueChanged.connect(self.update_calendar)
         self.monthInput.valueChanged.connect(self.update_calendar)
-        self.monthNameBox.currentIndexChanged.connect(self.updateMonthBox)        
-        self.layout.addWidget(QLabel("Выберите год:"))
-        self.layout.addWidget(self.yearInput)
-        self.layout.addWidget(QLabel("Выберите месяц:"))
-        self.layout.addWidget(self.monthNameBox)
-        self.layout.addWidget(self.monthInput)
+        self.monthNameBox.currentIndexChanged.connect(self.updateMonthBox)         
+
+        self.yearAndMonthLayout = QHBoxLayout()
+
+        # Год
+        self.yearLayout = QHBoxLayout()
+        self.yearLayout.addWidget(QLabel("Выберите год:"))
+        self.yearLayout.addWidget(self.yearInput)
+        self.yearLayout.addStretch()
+        self.yearAndMonthLayout.addLayout(self.yearLayout)
+        #self.layout.addLayout(self.yearLayout)
+
+        # Месяц
+        self.monthLayout = QHBoxLayout()
+        self.monthLayout.addWidget(QLabel("Выберите месяц:"))
+        self.monthLayout.addWidget(self.monthNameBox)
+        self.monthLayout.addWidget(self.monthInput)
+        self.monthLayout.addStretch()
+        self.yearAndMonthLayout.addLayout(self.monthLayout)
+        #self.layout.addLayout(self.monthLayout)
+
+        self.layout.addLayout(self.yearAndMonthLayout)
+
+        # Дни таблицей
+        self.grid_layout = QGridLayout()
+        self.layout.addLayout(self.grid_layout)
+            
+        # Дата начала
+        self.layout.addWidget(self.startDateLabel) 
+
+        self.weekDayLayout = QHBoxLayout()       
+        self.weekDayLayout.addWidget(QLabel("Номер недели:"))
+        self.weekDayLayout.addWidget(self.weekInput)
         
-               
-        self.layout.addWidget(self.startDateLabel)
-        self.layout.addWidget(QLabel("Выберите номер недели:"))
-        self.layout.addWidget(self.weekInput)
-        self.layout.addWidget(QLabel("Выберите день недели (0 - Пн, 6 - Вс):"))
-        self.layout.addWidget(self.dayInput)
+        self.weekDayLayout.addWidget(QLabel("День недели:"))
+        self.weekDayLayout.addWidget(self.weekDayNameBox)
+        self.weekDayLayout.addWidget(self.dayInput)
+        self.layout.addLayout(self.weekDayLayout)
+        
         self.layout.addWidget(self.dayWeekButton)
-                
+
+        self.weekDayNameBox.currentIndexChanged.connect(self.updateWeekNameBox)     
         self.weekInput.valueChanged.connect(self.get_date_from_week)
         self.dayInput.valueChanged.connect(self.get_date_from_week)
         
@@ -189,6 +218,8 @@ class GUI_calendar(QWidget):
         self.update_calendar()
         self.get_date_from_week()
     
+    def updateWeekNameBox(self):
+        self.dayInput.setValue(self.weekDayNameBox.currentIndex())
     def updateMonthBox(self):
         self.monthInput.setValue(self.monthNameBox.currentIndex() + 1)
     def update_calendar(self):
@@ -243,6 +274,10 @@ class GUI_calendar(QWidget):
         
         self.dayWeekButton.setText(f"Дата: {date.strftime('%d.%m.%Y')}")
         self.dayWeekButton.clicked.connect(lambda: self.callDay({'year' : date.year, 'month' :  date.month , 'day' :  date.day}))
+
+        assert 0 <= self.dayInput.value()
+        assert self.dayInput.value() < len(self.weekDayName)
+        self.weekDayNameBox.setCurrentText(self.weekDayName[self.dayInput.value()])
 
 class GUI_main_window(QWidget):
     """

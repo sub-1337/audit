@@ -193,7 +193,11 @@ class GUI_calendar(QWidget):
         self.monthInput.setValue(self.monthNameBox.currentIndex() + 1)
     def update_calendar(self):
         for i in reversed(range(self.grid_layout.count())):
-            self.grid_layout.itemAt(i).widget().setParent(None)
+            # Костыл чтобы не падало из-за плейсхолдера
+            try:
+                self.grid_layout.itemAt(i).widget().setParent(None)
+            except:
+                pass
         
         year = self.yearInput.value()
         month = self.monthInput.value()
@@ -206,12 +210,19 @@ class GUI_calendar(QWidget):
         for col, day in enumerate(days):
             self.grid_layout.addWidget(QLabel(day), 0, col)
         
-    
+        # Добавить плейсхолдер чтобы размер грида был одинаков
+        sizeVertical = 60
+        sizeHorizontal = 50
+        spacerItem = QSpacerItem(sizeVertical, sizeHorizontal)
+
+        self.grid_layout.addItem(spacerItem, 0, 0)
+        self.grid_layout.addItem(spacerItem, 6, 0)
 
         for row, week in enumerate(cal, start=1):
             for col, day in enumerate(week):
                 if day != 0:
                     btn = QPushButton(str(day))
+                    btn.setFixedSize(sizeVertical, sizeHorizontal)
                     btn.clicked.connect(partial(self.click_day_button, day))
                     self.grid_layout.addWidget(btn, row, col)
     

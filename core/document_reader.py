@@ -295,6 +295,16 @@ class DocumentReader():
             if name in cell:
                 return True
         return False 
+    @staticmethod
+    def isIgnoreTopWords(cell):
+        """
+        Является ли игнормруемой строкой сверху
+        """
+        if ('Р А С П И С А Н И Е' in cell) or ('РАСПИСАНИЕ' in cell) or  \
+           ('Расписание' in cell) or ('расписание' in cell):
+            return True
+        else:
+            return False
     def parseBorders(self): 
         """
         Распарсить данные таблицы сверху/слева такие как группа и время
@@ -315,6 +325,7 @@ class DocumentReader():
                         cellRightBottomNear = self.data.processed[i_row + 1][j_col + 1]
                         if self.isTime(cellRightBottomNear):
                             # Сдесь мы в левой верхней границе
+                            #if (self.isPara(cell) == False) and (self.isWeekDayName(cell) == None):
                             self.leftColumnData.append({'weekday' : weekday, 'para' : para, 'rows' : (i_row, i_row + 1,)})
             if i_row + 1 < self.data.rowMax:
                 i_row += 1
@@ -330,7 +341,8 @@ class DocumentReader():
                 cell = self.data.processed[i_row][j_col]
                 if cell:
                     if self.isGroup(cell):
-                        self.topRowData.append({'group' : dm.Group(cell), 'col' : j_col})
+                        if not self.isIgnoreTopWords(cell):
+                            self.topRowData.append({'group' : dm.Group(cell), 'col' : j_col})
 
             if j_col + 1 < self.data.colMax:
                 j_col += 1
@@ -352,9 +364,11 @@ class DocumentReader():
         confidence = 100
 
         auditory = None
+        auditory2 = None
         even = dm.RuleEven.DEFAULT
         week = []
         subgroup = dm.RuleSubgroup.DEFAULT
+        subgroup2 = None
 
         if ('чн.' in cell) or ('чн' in cell):
             even = dm.RuleEven.EVEN
@@ -373,22 +387,12 @@ class DocumentReader():
         matches = re.findall(patternAud, cell)
         comment = re.sub(patternAud, "", comment)
         if len(matches) != 1:
-            confidence -= 20
-        else:
-            """auditoryTextWithTrash = matches[0][0] + matches[0][1]
-
-            patternAudNumber = r'(\d+)\s*$'  
-            matches = re.findall(patternAudNumber, auditoryTextWithTrash)
-
-            auditoryText = "1000"
-            if len(matches) == 1:
-                auditoryText = matches[0]
+            if len(matches) == 2:
+                auditory = dm.Auditory(int(matches[0]))
+                auditory2 = dm.Auditory(int(matches[1]))
             else:
                 confidence -= 20
-
-            if len(auditoryText) != 4:
-                confidence -= 20
-            """
+        else:
             auditory = dm.Auditory(int(matches[0]))
 
         countOfSubgroup = 0
@@ -414,13 +418,35 @@ class DocumentReader():
             else:
                 result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
         else:
-            subgroupRegexp = r'(\d+)\s*(?=п/гр\.|подгр)'
+            #subgroupRegexp = r'(\d+)\s*(?=п/гр\.|подгр)'
+            subgroupRegexp = r'\s(\d)\b'
             subgroupMatch = re.findall(subgroupRegexp, cell)
-            if len(subgroupMatch) > 0:
-                subgroup = dm.RuleSubgroup(int(subgroupMatch[0]))
+            if len(subgroupMatch) == 2:
+                subgroupNumber = int(subgroupMatch[0])
+                subgroupNumber2 = int(subgroupMatch[1])
+                if (subgroupNumber < 0 or subgroupNumber > 4) or \
+                   (subgroupNumber2 < 0 or subgroupNumber2 > 4):
+                    confidence -= 20
+                    subgroup = dm.RuleSubgroup.DEFAULT
+                    subgroup2 = dm.RuleSubgroup.DEFAULT
+                else:
+                    subgroup = dm.RuleSubgroup(subgroupNumber)
+                    subgroup2 = dm.RuleSubgroup(subgroupNumber2)
+            elif len(subgroupMatch) == 1:
+                subgroupNumber = int(subgroupMatch[0])
+                if subgroupNumber < 0 or subgroupNumber > 4:
+                    confidence -= 20
+                    subgroup = dm.RuleSubgroup.DEFAULT
+                else:
+                    subgroup = dm.RuleSubgroup(subgroupNumber)
+                
             else:
                 subgroup = dm.RuleSubgroup.DEFAULT
-            result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
+            if subgroup2 and auditory2:
+                result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
+                result.append({'auditory' : auditory2, 'even' : even, 'week' : week, 'subgroup' : subgroup2, 'confidence' : confidence, 'comment' : comment})
+            else:
+                result.append({'auditory' : auditory, 'even' : even, 'week' : week, 'subgroup' : subgroup, 'confidence' : confidence, 'comment' : comment})
         return result
 
     def parseData(self):

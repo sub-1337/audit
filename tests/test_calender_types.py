@@ -40,12 +40,21 @@ def parseCell():
 
 чн 2 подгр  Макаров Н.Н. 
 """ 
-    # TODO: проверка
+    
     res = dr.DocumentReader.parseCell(cell)
     assert res[0]['auditory'] == dm.Auditory(5422)
     assert res[0]['even'] == dm.RuleEven.EVEN
     assert res[0]['subgroup'] == dm.RuleSubgroup.Group_2
     assert res[0]['confidence'] == 100
+    
+    cell = """нч а.6251, 6254    Инженерная и компьютерная графика     лаб. 1, 2  подгр.      Поспелова Н.В.,  Дроздова Т.А.    	
+"""
+    res = dr.DocumentReader.parseCell(cell)
+    assert res[0]['confidence'] == 100
+    assert res[0]['auditory'] == dm.Auditory(6251)
+    assert res[0]['subgroup'] == dm.RuleSubgroup(1)
+    assert res[1]['auditory'] == dm.Auditory(6254)
+    assert res[1]['subgroup'] == dm.RuleSubgroup(2)
     pass
 
     
@@ -131,18 +140,22 @@ def test():
         rules()
     except:
         print("Тест уникальности не пройден")
+
     try:
         parseCell()
     except:
         print("Тест на парсинг ячейки не пройден")
+
     try:
         rulesToDay()
     except:
         print("Тест test_parser.xlsx не пройден")
+
     try:
-        rulesToDay2()
+        rulesToDay2()    
     except:
         print("Тест test_parser2.xlsx не пройден")
+    
     try:
         groups()
     except:

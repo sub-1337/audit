@@ -399,6 +399,7 @@ class DocumentReader():
         countOfSubgroup += cell.count('подгр')
         countOfSubgroup += cell.count('п/гр')
         
+        comment = comment.replace("а.", "")
         
         if countOfSubgroup > 1:
             subgroupRegexp = r"(\d)\s*(?:п/гр\.|подгр)\s*-?\s*([\d,]+)"

@@ -182,7 +182,7 @@ class CalenderBlock():
         self.comment = comment
         self.overlapWith = []
     def __str__(self):
-        return f"calender block: id {self.id}, time {self.time}, para {self.para}, auditory {self.auditory}, subject {self.subject}, professor {self.professor}, group {self.group}"
+        return f"calender block: id {self.id}, time {self.time}, para {self.para}, auditory {self.auditory}, group {self.group}, comment {self.comment}"
     def __repr__(self):
         return str(self)
     def IsSameTime(self, block):
@@ -236,7 +236,30 @@ class CalenderDay():
                 array[i][n] = block
                 j += 1
         return array
-           
+
+"""class AuditoryBlock():
+  
+    # Одна ячейка аудитории
+    
+    def __init__(self):
+        self.days = []
+        self.auditory = None
+    def addBlock(self, block : CalenderBlock):
+        if self.auditory == None:
+            self.auditory = block.auditory
+        if self.auditory == block.auditory:
+            self.days.append(block)"""
+
+class AllAuditories():
+    """
+    Все аудитории (для окна аудиторий)
+    """
+    def __init__(self):
+        self.auditories = {}
+    """def addAuditory(self, auditoryBlock : AuditoryBlock):
+        self.auditories[auditoryBlock.auditory] = auditoryBlock"""
+    
+
 class CalenderYear():
     """
     Все дни календаря

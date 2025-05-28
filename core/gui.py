@@ -114,6 +114,16 @@ class GUI_day(QWidget):
     def initUI(self):
         pass
 
+class GUI_auditories(QWidget):
+    """
+    Список аудиторий
+    """
+
+    def __init__(self, auditories : dm.AllAuditories):
+        super().__init__()
+        self.setWindowTitle("Список аудиторий")
+        self.resize(400, 200)
+
 class GUI_calendar(QWidget):
     """
     Календарь
@@ -358,6 +368,8 @@ class GUI_main_window(QWidget):
         if self.readDoc():
             self.calender = GUI_calendar(self.document.dataYear, self.dateOfStartDic)
             self.calender.show()
+            self.auditoryList = GUI_auditories(self.document.allAuditories)
+            self.auditoryList.show()
     def show_document(self):
         if self.readDoc() == False:
             return

@@ -214,6 +214,8 @@ class DocumentReader():
 
         # Создать из данных таблицу по дням
         self.calcYear()
+        # Создать таблицу из данных по аудиториям
+        self.calcAuditories()
     def readHead(self):
         """
         Прочитать заголовок эксель файла на предмет книг
@@ -232,6 +234,8 @@ class DocumentReader():
         self.dayOfStartDic = None
         # Длительность учебного года
         self.maxWeek = 17
+        # Все аудитории
+        self.allAuditories = dm.AllAuditories()
 
         self.data.rowMax = 100
         self.data.colMax = 25
@@ -480,6 +484,22 @@ class DocumentReader():
                                                    rule['week'], rule['subgroup'], rule['comment'], rule['confidence']))
         pass
 
+    def calcAuditories(self):
+        """
+        Создать таблицу по аудиториям
+        """
+
+        auditories = {}
+
+        for day in self.dataYear.allDays:
+            for block in day.blocks:
+                #print(block)
+                if not auditories.get(block.auditory):
+                    auditories[block.auditory] = []
+                auditories[block.auditory].append(block)
+
+        self.allAuditories.auditories = auditories
+        
     def calcYear(self):
         """
         Создать из данных таблицу по дням

@@ -18,7 +18,10 @@ class Auditory():
     Класс аудитории с номером
     """
     def __init__(self, number):
-        self.number = number
+        if number == None:
+            self.number = 0
+        else:
+            self.number = number
     def __hash__(self):
         return hash((self.number))    
     def __eq__(self, other):
@@ -27,6 +30,8 @@ class Auditory():
         return f"{self.number}"
     def __repr__(self):
         return str(self)
+    def __lt__(self, other):
+        return self.number < other.number
     
 class Para():
     """
@@ -173,20 +178,23 @@ class CalenderBlock():
     """
     Блок сущности в календаре по дням
     """
-    def __init__(self, id : Id, time, para : Para, auditory : Auditory = None, group : Group = None, comment : str = ''):
+    def __init__(self, id : Id, time, para : Para, auditory : Auditory = None, group : Group = None, comment : str = '', day : date = None):
         self.id = id
         self.time = time
         self.para = para
         self.auditory = auditory
         self.group = group        
         self.comment = comment
+        self.date = day
         self.overlapWith = []
     def __str__(self):
-        return f"calender block: id {self.id}, time {self.time}, para {self.para}, auditory {self.auditory}, group {self.group}, comment {self.comment}"
+        return f"calender block: id {self.id}, time {self.time}, para {self.para}, auditory {self.auditory}, group {self.group}, date {self.date}, comment {self.comment}"
     def __repr__(self):
         return str(self)
     def IsSameTime(self, block):
         return self.para == block.para
+    def __lt__(self, other):
+        return self.date < other.date
 
 class CalenderDay():
     """
@@ -256,6 +264,10 @@ class AllAuditories():
     """
     def __init__(self):
         self.auditories = {}
+    def sort(self):
+        self.auditories = dict(sorted(self.auditories.items()))
+        for blockKey in self.auditories:
+            self.auditories[blockKey] = sorted(self.auditories[blockKey])
     """def addAuditory(self, auditoryBlock : AuditoryBlock):
         self.auditories[auditoryBlock.auditory] = auditoryBlock"""
     

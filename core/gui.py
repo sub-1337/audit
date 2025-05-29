@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel, QCalendarWidget, QSpacerItem
-from PyQt6.QtWidgets import QLineEdit, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox, QComboBox, QMessageBox
+from PyQt6.QtWidgets import QLineEdit, QScrollArea, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox, QComboBox, QMessageBox
 from PyQt6.QtGui import QColor
 from PyQt6.QtCore import Qt, QDate
 from core.data_model import InputData
@@ -114,6 +114,12 @@ class GUI_day(QWidget):
     def initUI(self):
         pass
 
+class GUI_singleAuditroy(QWidget):
+    def __init__(self, auditory):
+        self.setWindowTitle("Список аудиторий")
+        self.resize(600, 400)
+        super().__init__()
+
 class GUI_auditories(QWidget):
     """
     Список аудиторий
@@ -121,8 +127,30 @@ class GUI_auditories(QWidget):
 
     def __init__(self, auditories : dm.AllAuditories):
         super().__init__()
+        self.auditories = auditories
         self.setWindowTitle("Список аудиторий")
-        self.resize(400, 200)
+        self.resize(600, 400)
+        self.initUI()
+    def initUI(self):
+        main_layout = QVBoxLayout(self)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+
+        content = QWidget()
+        content_layout = QVBoxLayout(content)
+
+        for auditory in self.auditories.auditories:
+            button = QPushButton(str(auditory))
+            button.clicked.connect(lambda: self.clickAuditory(auditory))
+            content_layout.addWidget(button)
+
+        scroll.setWidget(content)
+        main_layout.addWidget(scroll)
+    def clickAuditory(self, auditory):
+        self.singleAuditory = GUI_singleAuditroy(self.auditories.auditories[auditory])
+        self.singleAuditory.show()
+
 
 class GUI_calendar(QWidget):
     """

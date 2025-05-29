@@ -367,8 +367,8 @@ class DocumentReader():
 
         confidence = 100
 
-        auditory = None
-        auditory2 = None
+        auditory = dm.Auditory(None)
+        auditory2 = dm.Auditory(None)
         even = dm.RuleEven.DEFAULT
         week = []
         subgroup = dm.RuleSubgroup.DEFAULT
@@ -497,8 +497,10 @@ class DocumentReader():
                 if not auditories.get(block.auditory):
                     auditories[block.auditory] = []
                 auditories[block.auditory].append(block)
+            pass
 
         self.allAuditories.auditories = auditories
+        self.allAuditories.sort()
         
     def calcYear(self):
         """
@@ -526,20 +528,20 @@ class DocumentReader():
                 even = dm.RuleEven.ODD
 
             day = dm.CalenderDay(dt.date(currentDate.year, currentDate.month, currentDate.day))
-
+            dayDate =  dt.date(currentDate.year, currentDate.month, currentDate.day)
             for rule in self.rules.rules:
                 if rule.dayOfWeek == dayOfWeekEnum:
                     if len(rule.week) == 0:
                         if rule.even != dm.RuleEven.DEFAULT:
                             if rule.even == even:
-                                block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)
+                                block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate)
                                 day.addBlock(block)
                         else:
-                            block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)
+                            block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate)
                             day.addBlock(block)
                     else:
                         if weekNumber in rule.week:
-                            block = block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment)
+                            block = block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate)
                             day.addBlock(block) 
             self.dataYear.addDay(day)
             currentDate += dt.timedelta(days=1)

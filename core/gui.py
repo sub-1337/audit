@@ -115,10 +115,56 @@ class GUI_day(QWidget):
         pass
 
 class GUI_singleAuditroy(QWidget):
-    def __init__(self, auditory):
-        self.setWindowTitle("Список аудиторий")
-        self.resize(600, 400)
+    def __init__(self, auditoryBlocks):
         super().__init__()
+        self.auditoryBlocks = auditoryBlocks
+        self.setWindowTitle("Аудитория")
+        self.resize(600, 400)
+        self.initUI()
+        
+    def initUI(self):
+        rowsCount = len(self.auditoryBlocks)
+        colsCount = 5
+        self.table = QTableWidget()
+        self.table.setRowCount(rowsCount)    # 3 rows
+        self.table.setColumnCount(colsCount)
+
+        self.table.setHorizontalHeaderLabels(['Аудитория', 'Дата', 'Пара', 'Подгруппа', 'Комментарий'])
+
+        for i_row in range(rowsCount):
+            itemAud = QTableWidgetItem(str(self.auditoryBlocks[i_row].auditory))
+            self.table.setItem(i_row, 0, itemAud)
+
+            itemDate = QTableWidgetItem(str(self.auditoryBlocks[i_row].date))
+            self.table.setItem(i_row, 1, itemDate)
+
+            itemPara = QTableWidgetItem(str(self.auditoryBlocks[i_row].para))
+            self.table.setItem(i_row, 2, itemPara)
+
+            itemSubgroup = QTableWidgetItem(str(self.auditoryBlocks[i_row].group))
+            self.table.setItem(i_row, 3, itemSubgroup)
+
+            itemComment = QTableWidgetItem(str(self.auditoryBlocks[i_row].comment))
+            self.table.setItem(i_row, 4, itemComment)
+
+
+
+
+        """for i_row in range(rowsCount):
+            for i_col in range(colsCount):
+                #if i_row < len(inputData.processed) and i_col < len(inputData.processed[i_row]):
+                if inputData.processed[i_row][i_col]:
+                    item = QTableWidgetItem(inputData.processed[i_row][i_col])
+                else:
+                    item = QTableWidgetItem("")
+                self.table.setItem(i_row - 1, i_col - 1, item)"""
+
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.table)
+        self.setLayout(layout)
 
 class GUI_auditories(QWidget):
     """
@@ -135,14 +181,18 @@ class GUI_auditories(QWidget):
         main_layout = QVBoxLayout(self)
 
         scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
+        scroll.setWidgetResizable(True) 
 
         content = QWidget()
         content_layout = QVBoxLayout(content)
 
         for auditory in self.auditories.auditories:
             button = QPushButton(str(auditory))
-            button.clicked.connect(lambda: self.clickAuditory(auditory))
+            # button.clicked.connect(lambda: self.clickAuditory(auditory))
+            # copyAud = dm.Auditory(str(auditory))
+            # button.clicked.connect(lambda: self.clickAuditory(copyAud))
+            # partial(self.click_day_button, day)
+            button.clicked.connect(partial(self.clickAuditory, auditory))
             content_layout.addWidget(button)
 
         scroll.setWidget(content)
@@ -247,6 +297,7 @@ class GUI_calendar(QWidget):
         self.layout.addLayout(self.weekDayLayout)
         
         self.layout.addWidget(self.dayWeekButton)
+        self.dayWeekButton.clicked.connect(lambda: self.callDay(self.dayWeekButtonDay))
 
         self.weekDayNameBox.currentIndexChanged.connect(self.updateWeekNameBox)     
         self.weekInput.valueChanged.connect(self.get_date_from_week)
@@ -262,7 +313,7 @@ class GUI_calendar(QWidget):
         self.monthInput.setValue(self.monthNameBox.currentIndex() + 1)
     def update_calendar(self):
         for i in reversed(range(self.grid_layout.count())):
-            # Костыл чтобы не падало из-за плейсхолдера
+            # Костыль чтобы не падало из-за плейсхолдера
             try:
                 self.grid_layout.itemAt(i).widget().setParent(None)
             except:
@@ -311,7 +362,7 @@ class GUI_calendar(QWidget):
         date = first_monday + timedelta(weeks=week-1, days=day)
         
         self.dayWeekButton.setText(f"Дата: {date.strftime('%d.%m.%Y')}")
-        self.dayWeekButton.clicked.connect(lambda: self.callDay({'year' : date.year, 'month' :  date.month , 'day' :  date.day}))
+        self.dayWeekButtonDay = {'year' : date.year, 'month' :  date.month , 'day' :  date.day}        
 
         assert 0 <= self.dayInput.value()
         assert self.dayInput.value() < len(self.weekDayName)

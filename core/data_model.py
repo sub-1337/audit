@@ -44,7 +44,7 @@ class Para():
     def __eq__(self, other):
         return isinstance(other, Para) and self.number == other.number
     def __str__(self):
-        return f"para {self.number}"
+        return f"Пара номер {self.number}"
     def __repr__(self):
         return str(self)
 
@@ -105,6 +105,17 @@ class RuleSubgroup(Enum):
     Group_2 = 2
     Group_3 = 3
     Group_4 = 4
+    def __str__(self):
+        if self.value == 0:
+            return "По умолчанию"
+        if self.value == 1:
+            return "1"
+        if self.value == 2:
+            return "2"
+        if self.value == 3:
+            return "3"
+        if self.value == 4:
+            return "4"
     
 class RuleEven(Enum):
     """

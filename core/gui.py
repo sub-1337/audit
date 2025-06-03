@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel, QCalendarWidget, QSpacerItem
+from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QLabel, QCalendarWidget, QSpacerItem, QFileDialog
 from PyQt6.QtWidgets import QLineEdit, QScrollArea, QPushButton, QHBoxLayout, QFileDialog, QGridLayout, QSpinBox, QComboBox, QMessageBox
 from PyQt6.QtGui import QColor
 from PyQt6.QtCore import Qt, QDate
@@ -115,13 +115,14 @@ class GUI_day(QWidget):
         pass
 
 class GUI_singleAuditroy(QWidget):
-    def __init__(self, auditoryBlocks):
+    def __init__(self, auditoryBlocks, documentReader : DocumentReader):
         super().__init__()
         self.auditoryBlocks = auditoryBlocks
+        self.documentReader = documentReader
         self.setWindowTitle("Аудитория")
         self.resize(600, 400)
         self.initUI()
-        
+
     def initUI(self):
         rowsCount = len(self.auditoryBlocks)
         colsCount = 5
@@ -147,33 +148,39 @@ class GUI_singleAuditroy(QWidget):
             itemComment = QTableWidgetItem(str(self.auditoryBlocks[i_row].comment))
             self.table.setItem(i_row, 4, itemComment)
 
-
-
-
-        """for i_row in range(rowsCount):
-            for i_col in range(colsCount):
-                #if i_row < len(inputData.processed) and i_col < len(inputData.processed[i_row]):
-                if inputData.processed[i_row][i_col]:
-                    item = QTableWidgetItem(inputData.processed[i_row][i_col])
-                else:
-                    item = QTableWidgetItem("")
-                self.table.setItem(i_row - 1, i_col - 1, item)"""
+        
 
         self.table.resizeColumnsToContents()
         self.table.resizeRowsToContents()
 
+        self.printButton = QPushButton("Вывод в файл")
+        self.printButton.clicked.connect(self.outputToFile)
+
         layout = QVBoxLayout()
+        layout.addWidget(self.printButton)
         layout.addWidget(self.table)
         self.setLayout(layout)
+    
+    def outputToFile(self):
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Сохранить файл расписания",
+            "",
+            "(*.xlsx);;Все файлы (*)"
+        )
+
+        if file_name:
+            self.documentReader.writeReportAuditory(self.auditoryBlocks, file_name)
 
 class GUI_auditories(QWidget):
     """
     Список аудиторий
     """
 
-    def __init__(self, auditories : dm.AllAuditories):
+    def __init__(self, auditories : dm.AllAuditories, documentReader : DocumentReader):
         super().__init__()
         self.auditories = auditories
+        self.documentReader = documentReader
         self.setWindowTitle("Список аудиторий")
         self.resize(600, 400)
         self.initUI()
@@ -198,7 +205,7 @@ class GUI_auditories(QWidget):
         scroll.setWidget(content)
         main_layout.addWidget(scroll)
     def clickAuditory(self, auditory):
-        self.singleAuditory = GUI_singleAuditroy(self.auditories.auditories[auditory])
+        self.singleAuditory = GUI_singleAuditroy(self.auditories.auditories[auditory], self.documentReader)
         self.singleAuditory.show()
 
 
@@ -447,7 +454,7 @@ class GUI_main_window(QWidget):
         if self.readDoc():
             self.calender = GUI_calendar(self.document.dataYear, self.dateOfStartDic)
             self.calender.show()
-            self.auditoryList = GUI_auditories(self.document.allAuditories)
+            self.auditoryList = GUI_auditories(self.document.allAuditories, self.document)
             self.auditoryList.show()
     def show_document(self):
         if self.readDoc() == False:

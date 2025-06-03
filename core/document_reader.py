@@ -1,10 +1,10 @@
 import re
 from enum import Enum
 import openpyxl
+from openpyxl import Workbook
 from core.data_model import InputData
 import core.data_model as dm
 import datetime as dt
-
 
 class DocumentReader():
     class DirectionOfGroupingUp(Enum):
@@ -556,3 +556,38 @@ class DocumentReader():
         Вернуть правила
         """
         return self.rules
+    
+    def writeReportAuditory(self, auditoryBlocks, fileName):
+        """
+        Распечатать по аудитории файл
+        """
+        wb = Workbook()
+        ws = wb.active
+        # ws.cell(10, 5).value = "TEST"
+        firstRow = 1
+
+        ws.cell(firstRow, 1).value = "Аудитория"
+        ws.cell(firstRow, 2).value = "Дата"
+        ws.cell(firstRow, 3).value = "Пара"
+        ws.cell(firstRow, 4).value = "Подгруппа"
+        ws.cell(firstRow, 5).value = "Комментарий"
+
+        # dataFirstRow = firstRow + 1
+
+        rowsCount = len(auditoryBlocks) # Массив 
+        colsCount = 5
+
+        # Итерация по массиву с первым элемиентом 0
+        # Далле вычисляем позицию в документе по смещению
+        # Т.к. в жокументе пнрвый элемент 1
+        for i_row_array in range(0, rowsCount):
+            i_row_document = i_row_array + 2
+            ws.cell(i_row_document, 1).value = str(auditoryBlocks[i_row_array].auditory)
+            ws.cell(i_row_document, 2).value = str(auditoryBlocks[i_row_array].date)
+            ws.cell(i_row_document, 3).value = str(auditoryBlocks[i_row_array].para)
+            ws.cell(i_row_document, 4).value = str(auditoryBlocks[i_row_array].group)
+            ws.cell(i_row_document, 5).value = str(auditoryBlocks[i_row_array].comment)
+
+        # Save the workbook
+        wb.save(fileName)
+        pass

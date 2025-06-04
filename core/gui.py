@@ -54,20 +54,22 @@ class GUI_day(QWidget):
     """
     Просмотр дня
     """
-    def __init__(self, calender : dm.CalenderYear, currentDay):
+    def __init__(self, calender : dm.CalenderYear, currentDay, documentReader : DocumentReader):
         super().__init__()
         self.setWindowTitle('Расписание на день')
         self.setGeometry(100, 100, 800, 600)  # x, y, width, height
 
-        day: dm.CalenderDay = calender.getDay(currentDay)
-        if day is None:
+        self.documentReader = documentReader
+        self.day : dm.CalenderDay = calender.getDay(currentDay)
+        if self.day is None:
             self.noData = True
         else:
             self.noData = False
         
+        
         if not self.noData:
             #day.CalcArrayByAudirory()
-            auditorArr = day.ReturnArrayByAuditory()
+            auditorArr = self.day.ReturnArrayByAuditory()
             
             rowCount = len(auditorArr)
             columnCoun = 7
@@ -101,11 +103,27 @@ class GUI_day(QWidget):
             self.table.resizeRowsToContents()
             # Set layout
             layout = QVBoxLayout()
+
+            self.printButton = QPushButton("Вывод в файл")
+            self.printButton.clicked.connect(self.outputToFile)
+            layout.addWidget(self.printButton)
+
             layout.addWidget(self.table)
             self.setLayout(layout)
         else:
             self.setNoData()
-            
+
+        
+    def outputToFile(self):
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Сохранить файл расписания",
+            "",
+            "(*.xlsx);;Все файлы (*)"
+        )
+        if file_name:
+            self.documentReader.writeReportDay(self.day, file_name)
+
     def setNoData(self):
         self.noDataText = QLabel("Нет данных за этот период")
         self.layout = QVBoxLayout()
@@ -214,8 +232,9 @@ class GUI_calendar(QWidget):
     Календарь
     """
     
-    def __init__(self, dataYear : dm.CalenderYear, startDate):
+    def __init__(self, dataYear : dm.CalenderYear, startDate, documentReader : DocumentReader):
         super().__init__()        
+        self.documentReader = documentReader
         self.dataYear = dataYear
         self.dateOfStartDic = startDate
         self.setWindowTitle("Режим календаря")
@@ -358,7 +377,7 @@ class GUI_calendar(QWidget):
         month = self.monthInput.value()        
         self.callDay({'year' : year, 'month' : month , 'day' : day})
     def callDay(self, fullDay):
-        self.day_widget = GUI_day(self.dataYear, fullDay)
+        self.day_widget = GUI_day(self.dataYear, fullDay, self.documentReader)
         self.day_widget.show()
     def get_date_from_week(self):
         week = self.weekInput.value()
@@ -452,7 +471,7 @@ class GUI_main_window(QWidget):
         self.button_show_doc.setDisabled(False)
     def open_file(self):
         if self.readDoc():
-            self.calender = GUI_calendar(self.document.dataYear, self.dateOfStartDic)
+            self.calender = GUI_calendar(self.document.dataYear, self.dateOfStartDic, self.document)
             self.calender.show()
             self.auditoryList = GUI_auditories(self.document.allAuditories, self.document)
             self.auditoryList.show()

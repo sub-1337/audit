@@ -590,3 +590,45 @@ class DocumentReader():
 
         # Save the workbook
         wb.save(fileName)
+
+    def writeReportDay(self, day : dm.CalenderDay, fileName):
+        """
+        Распечатать по дню
+        """
+        
+        wb = Workbook()
+        ws = wb.active
+        firstRow = 1
+
+        ws.cell(firstRow, 1).value = "Аудитория"
+        for i in range(1,7):
+            ws.cell(firstRow, 1 + i).value = f"Пара {i}"
+
+        auditorArr = day.ReturnArrayByAuditory()
+        rowMax = len(auditorArr)
+        colMax = len(auditorArr[0])
+
+        def GetCell(block : dm.CalenderBlock):
+            return f"{block.comment}\n{block.group}"
+
+        # Итерация по массиву с первым элемиентом 0
+        # Далле вычисляем позицию в документе по смещению
+        # Т.к. в жокументе пнрвый элемент 1
+        for i_row_array in range(0, rowMax):
+            i_row_document = i_row_array + 2
+            for j_col in range(colMax):
+                j_col_document = j_col + 1
+                if isinstance(auditorArr[i_row_array][j_col], dm.CalenderBlock):
+                    ws.cell(i_row_document, j_col_document).value = GetCell(\
+                        auditorArr[i_row_array][j_col])
+                else:
+                    ws.cell(i_row_document, j_col_document).value = str(\
+                        auditorArr[i_row_array][j_col])
+            # Изменить размер колонок
+            colNum = i_row_document
+            colLetter = openpyxl.utils.get_column_letter(colNum)
+            ws.column_dimensions[colLetter].width = 60
+            
+
+        wb.save(fileName)
+        pass

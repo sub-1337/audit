@@ -254,7 +254,9 @@ class CalenderDay():
                 n = block.para.number
                 array[i][n] = block
                 j += 1
-        return array
+        # Сортировать по аудитории
+        arraySorted = sorted(array, key=lambda x: x[0])
+        return arraySorted
 
 """class AuditoryBlock():
   

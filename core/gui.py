@@ -122,7 +122,15 @@ class GUI_day(QWidget):
             "(*.xlsx);;Все файлы (*)"
         )
         if file_name:
-            self.documentReader.writeReportDay(self.day, file_name)
+            try:
+                self.documentReader.writeReportDay(self.day, file_name)
+            except:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Icon.Critical)
+                msg.setWindowTitle("Ошибка")
+                msg.setText("Не удалось записать в файл")
+                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                msg.exec()
 
     def setNoData(self):
         self.noDataText = QLabel("Нет данных за этот период")
@@ -188,7 +196,15 @@ class GUI_singleAuditroy(QWidget):
         )
 
         if file_name:
-            self.documentReader.writeReportAuditory(self.auditoryBlocks, file_name)
+            try:
+                self.documentReader.writeReportAuditory(self.auditoryBlocks, file_name)
+            except:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Icon.Critical)
+                msg.setWindowTitle("Ошибка")
+                msg.setText("Не удалось записать в файл")
+                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                msg.exec()
 
 class GUI_auditories(QWidget):
     """
@@ -461,7 +477,15 @@ class GUI_main_window(QWidget):
     def choose_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "Файл xlsx (*.xlsx)")
         self.path_text.setText(file_path)
-        self.readHeadOfDoc()
+        try:
+            self.readHeadOfDoc()
+        except:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.setWindowTitle("Ошибка")
+            msg.setText("Не удалось считать файл")
+            msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            msg.exec()
 
         self.comboSheet.clear()
         if self.document.worbookNames:
@@ -489,7 +513,16 @@ class GUI_main_window(QWidget):
         self.document = DocumentReader(path)
     def readDoc(self):
         if self.dateOfStartDic:
-            self.document.readDoc(self.dateOfStartDic)
+            try:
+                self.document.readDoc(self.dateOfStartDic)
+            except:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Icon.Critical)
+                msg.setWindowTitle("Ошибка")
+                msg.setText("Не удалось считать файл")
+                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                msg.exec()
+                return False
             return True
         else:
             msg = QMessageBox()

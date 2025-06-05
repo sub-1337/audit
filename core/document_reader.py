@@ -593,7 +593,7 @@ class DocumentReader():
 
     def writeReportDay(self, day : dm.CalenderDay, fileName):
         """
-        Распечатать по дню
+        Распечатать по дню файл
         """
         
         wb = Workbook()

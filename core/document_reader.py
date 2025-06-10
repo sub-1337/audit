@@ -623,8 +623,18 @@ class DocumentReader():
             for j_col in range(colMax):
                 j_col_document = j_col + 1
                 if isinstance(auditorArr[i_row_array][j_col], dm.CalenderBlock):
-                    ws.cell(i_row_document, j_col_document).value = GetCell(\
+                    if len(auditorArr[i_row_array][j_col].overlapWith) == 0:
+                        ws.cell(i_row_document, j_col_document).value = GetCell(\
                         auditorArr[i_row_array][j_col])
+                    else:
+                        if not ws.cell(i_row_document, j_col_document).value:
+                            ws.cell(i_row_document, j_col_document).value = \
+                                GetCell(auditorArr[i_row_array][j_col])
+                        setOverlap = set(auditorArr[i_row_array][j_col].overlapWith)
+                        for overlapBlock in setOverlap:
+                            ws.cell(i_row_document, j_col_document).value = "ОШИБКА " + "\n" + \
+                                ws.cell(i_row_document, j_col_document).value + "\n" + \
+                                GetCell(overlapBlock)
                 else:
                     ws.cell(i_row_document, j_col_document).value = str(\
                         auditorArr[i_row_array][j_col])

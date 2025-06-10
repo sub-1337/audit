@@ -237,7 +237,7 @@ class CalenderDay():
             for i in range(len(blocks)):
                 for j in range(len(blocks)):
                     if i != j and blocks[i].IsSameTime(blocks[j]):
-                        blocks[i].overlapWith.append(blocks[j].id)
+                        blocks[i].overlapWith.append(blocks[j])
         """for auditorie, blocks in self.auditories.items():
             blocks.sort()
         pass"""

@@ -95,6 +95,8 @@ class GUI_day(QWidget):
                         cell = QTableWidgetItem(str(auditorArr[row_i][col_j]))
                     if isinstance(auditorArr[row_i][col_j], dm.CalenderBlock):
                         if len(auditorArr[row_i][col_j].overlapWith) > 0:
+                            for overlapBLock in auditorArr[row_i][col_j].overlapWith:
+                                cell.setText("ОШИБКА " + cell.text() + " \n" + GetCell(overlapBLock))
                             cell.setForeground(QColor('red'))
                     cell.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop) 
                     self.table.setItem(row_i, col_j, cell)                    

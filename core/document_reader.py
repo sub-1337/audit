@@ -238,7 +238,7 @@ class DocumentReader():
         self.allAuditories = dm.AllAuditories()
 
         self.data.rowMax = 100
-        self.data.colMax = 25
+        self.data.colMax = 100
         # Путь до файла
         self.docPath = docPath
 

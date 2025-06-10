@@ -361,6 +361,8 @@ class DocumentReader():
         """
         if not cell:
             return None
+        if "MOODLE" in cell:
+            return None
         
         cloneResult  = {'auditory' : None, 'even' : None, 'week' : None, 'subgroup' : None, 'confidence' : None}
         result = []

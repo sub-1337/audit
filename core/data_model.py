@@ -258,19 +258,6 @@ class CalenderDay():
         arraySorted = sorted(array, key=lambda x: x[0])
         return arraySorted
 
-"""class AuditoryBlock():
-  
-    # Одна ячейка аудитории
-    
-    def __init__(self):
-        self.days = []
-        self.auditory = None
-    def addBlock(self, block : CalenderBlock):
-        if self.auditory == None:
-            self.auditory = block.auditory
-        if self.auditory == block.auditory:
-            self.days.append(block)"""
-
 class AllAuditories():
     """
     Все аудитории (для окна аудиторий)
@@ -281,8 +268,6 @@ class AllAuditories():
         self.auditories = dict(sorted(self.auditories.items()))
         for blockKey in self.auditories:
             self.auditories[blockKey] = sorted(self.auditories[blockKey])
-    """def addAuditory(self, auditoryBlock : AuditoryBlock):
-        self.auditories[auditoryBlock.auditory] = auditoryBlock"""
     
 
 class CalenderYear():

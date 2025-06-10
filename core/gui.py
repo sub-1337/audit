@@ -486,6 +486,7 @@ class GUI_main_window(QWidget):
             msg.setText("Не удалось считать файл")
             msg.setStandardButtons(QMessageBox.StandardButton.Ok)
             msg.exec()
+            return
 
         self.comboSheet.clear()
         if self.document.worbookNames:

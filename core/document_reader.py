@@ -483,7 +483,7 @@ class DocumentReader():
                 for rule in resTotal:
                     if rule:
                         self.rules.addRule(dm.Rule(rule['auditory'], weekday, para,  rule['even'],\
-                                                   rule['week'], rule['subgroup'], rule['comment'], rule['confidence']))
+                                                   rule['week'], rule['subgroup'], rule['comment'], rule['confidence'], dm.Group(group)))
         pass
 
     def calcAuditories(self):
@@ -536,14 +536,14 @@ class DocumentReader():
                     if len(rule.week) == 0:
                         if rule.even != dm.RuleEven.DEFAULT:
                             if rule.even == even:
-                                block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate)
+                                block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate, rule.group)
                                 day.addBlock(block)
                         else:
-                            block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate)
+                            block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate, rule.group)
                             day.addBlock(block)
                     else:
                         if weekNumber in rule.week:
-                            block = block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate)
+                            block = block = dm.CalenderBlock(None, None, rule.para, rule.auditory, rule.subgroup, rule.comment, dayDate, rule.group)
                             day.addBlock(block) 
             self.dataYear.addDay(day)
             currentDate += dt.timedelta(days=1)
@@ -571,8 +571,9 @@ class DocumentReader():
         ws.cell(firstRow, 1).value = "Аудитория"
         ws.cell(firstRow, 2).value = "Дата"
         ws.cell(firstRow, 3).value = "Пара"
-        ws.cell(firstRow, 4).value = "Подгруппа"
-        ws.cell(firstRow, 5).value = "Комментарий"
+        ws.cell(firstRow, 4).value = "Группа"
+        ws.cell(firstRow, 5).value = "Подгруппа"
+        ws.cell(firstRow, 6).value = "Комментарий"
 
         # dataFirstRow = firstRow + 1
 
@@ -587,8 +588,9 @@ class DocumentReader():
             ws.cell(i_row_document, 1).value = str(auditoryBlocks[i_row_array].auditory)
             ws.cell(i_row_document, 2).value = str(auditoryBlocks[i_row_array].date)
             ws.cell(i_row_document, 3).value = str(auditoryBlocks[i_row_array].para)
-            ws.cell(i_row_document, 4).value = str(auditoryBlocks[i_row_array].group)
-            ws.cell(i_row_document, 5).value = str(auditoryBlocks[i_row_array].comment)
+            ws.cell(i_row_document, 4).value = str(auditoryBlocks[i_row_array].groupBase)            
+            ws.cell(i_row_document, 5).value = str(auditoryBlocks[i_row_array].subGroup)
+            ws.cell(i_row_document, 6).value = str(auditoryBlocks[i_row_array].comment)
 
         # Save the workbook
         wb.save(fileName)
@@ -611,7 +613,7 @@ class DocumentReader():
         colMax = len(auditorArr[0])
 
         def GetCell(block : dm.CalenderBlock):
-            return f"{block.comment}\n{block.group}"
+            return f"группа {block.groupBase} подгруппа {block.subGroup}\n{block.comment}"
 
         # Итерация по массиву с первым элемиентом 0
         # Далле вычисляем позицию в документе по смещению

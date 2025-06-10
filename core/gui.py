@@ -85,7 +85,7 @@ class GUI_day(QWidget):
             self.table.setColumnCount(columnCoun) # 3 columns
             self.table.setHorizontalHeaderLabels(['Аудитория', 'Пара 1', 'Пара 2', 'Пара 3', 'Пара 4', 'Пара 5', 'Пара 6'])
             def GetCell(block : dm.CalenderBlock):
-                return f"{block.comment}\n{block.group}"
+                return f"группа {block.groupBase} подгруппа {block.subGroup}\n{block.comment}"
             for row_i in range(rowCount):
                 for col_j in range(columnCoun):
                     cell = None
@@ -151,12 +151,12 @@ class GUI_singleAuditroy(QWidget):
 
     def initUI(self):
         rowsCount = len(self.auditoryBlocks)
-        colsCount = 5
+        colsCount = 6
         self.table = QTableWidget()
         self.table.setRowCount(rowsCount)    # 3 rows
         self.table.setColumnCount(colsCount)
 
-        self.table.setHorizontalHeaderLabels(['Аудитория', 'Дата', 'Пара', 'Подгруппа', 'Комментарий'])
+        self.table.setHorizontalHeaderLabels(['Аудитория', 'Дата', 'Пара', 'Группа', 'Подгруппа', 'Комментарий'])
 
         for i_row in range(rowsCount):
             itemAud = QTableWidgetItem(str(self.auditoryBlocks[i_row].auditory))
@@ -166,13 +166,16 @@ class GUI_singleAuditroy(QWidget):
             self.table.setItem(i_row, 1, itemDate)
 
             itemPara = QTableWidgetItem(str(self.auditoryBlocks[i_row].para))
-            self.table.setItem(i_row, 2, itemPara)
+            self.table.setItem(i_row, 2, itemPara)           
 
-            itemSubgroup = QTableWidgetItem(str(self.auditoryBlocks[i_row].group))
-            self.table.setItem(i_row, 3, itemSubgroup)
+            itemGroup = QTableWidgetItem(str(self.auditoryBlocks[i_row].groupBase))
+            self.table.setItem(i_row, 3, itemGroup)
+            
+            itemSubgroup = QTableWidgetItem(str(self.auditoryBlocks[i_row].subGroup))
+            self.table.setItem(i_row, 4, itemSubgroup)
 
             itemComment = QTableWidgetItem(str(self.auditoryBlocks[i_row].comment))
-            self.table.setItem(i_row, 4, itemComment)
+            self.table.setItem(i_row, 5, itemComment)
 
         
 

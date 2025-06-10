@@ -147,7 +147,7 @@ class Rule():
     Правило - кирпичик расписания
     """
     def __init__(self, auditory : Auditory, dayOfWeek : DayOfWeek, para : Para, even : RuleEven = RuleEven.DEFAULT, week = [],\
-                subgroup : RuleSubgroup = RuleSubgroup.DEFAULT, comment : str = "",confidence : int = 50, originalText : str = "", id : Id = None):
+                subgroup : RuleSubgroup = RuleSubgroup.DEFAULT, comment : str = "",confidence : int = 50, group : str = "", originalText : str = "", id : Id = None):
         self.auditory = auditory
         self.even = even
         self.week = week
@@ -158,8 +158,9 @@ class Rule():
         self.confidence = confidence
         self.originalText = originalText
         self.id = id
+        self.group = group
     def __str__(self):
-        return f"Id {self.id}, auditory {self.auditory}, even {self.even}, week {self.week}, subgroup {self.subgroup.name}, dayOfWeek {self.dayOfWeek.name}, para {self.para}, comment {self.comment}, confidence {self.confidence}"
+        return f"Id {self.id}, auditory {self.auditory}, even {self.even}, week {self.week}, group {self.group}, subgroup {self.subgroup.name}, dayOfWeek {self.dayOfWeek.name}, para {self.para},  comment {self.comment}, confidence {self.confidence}"
     def __repr__(self):
         return str(self)
     def __eq__(self, other):
@@ -189,12 +190,13 @@ class CalenderBlock():
     """
     Блок сущности в календаре по дням
     """
-    def __init__(self, id : Id, time, para : Para, auditory : Auditory = None, group : Group = None, comment : str = '', day : date = None):
+    def __init__(self, id : Id, time, para : Para, auditory : Auditory = None, subGroup : RuleSubgroup = None, comment : str = '', day : date = None, groupBase : Group = None):
         self.id = id
         self.time = time
         self.para = para
         self.auditory = auditory
-        self.group = group        
+        self.groupBase = groupBase
+        self.subGroup = subGroup        
         self.comment = comment
         self.date = day
         self.overlapWith = []
